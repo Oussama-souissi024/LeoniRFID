@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0-android</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>LeoniRFID</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+
+    <!-- App Identity -->
+    <ApplicationTitle>LEONI RFID</ApplicationTitle>
+    <ApplicationId>com.leoni.rfid.production</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+
+    <!-- Android -->
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <!-- App Icon & Splash -->
+  <ItemGroup>
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#00205B" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#00205B" BaseSize="128,128" />
+    <MauiImage Include="Resources\Images\*" />
+    <MauiFont Include="Resources\Fonts\*" />
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- NuGet Packages -->
+  <ItemGroup>
+    <!-- MVVM Toolkit -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+
+    <!-- SQLite -->
+    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
+
+    <!-- Excel (import/export) -->
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+
+    <!-- HTTP / JSON -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+
+    <!-- MAUI Community Toolkit (animations, converters) -->
+    <PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
+
+    <!-- Secure Storage (already in MAUI) -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+  </ItemGroup>
+
+  <!-- Android Assets -->
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <AndroidResource Include="Platforms\Android\Resources\**" />
+  </ItemGroup>
+
+</Project>

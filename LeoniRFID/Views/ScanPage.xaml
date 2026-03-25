@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
+             x:Class="LeoniRFID.Views.ScanPage"
+             x:DataType="vm:ScanViewModel"
+             Title="Scanner RFID">
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="20" RowSpacing="20">
+
+        <!-- Top Status & Manual Entry -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10">
+            <Label Text="{Binding ScanStatusText}" 
+                   Style="{StaticResource SubHeadingLabel}" 
+                   HorizontalTextAlignment="Center"
+                   TextColor="{Binding TagNotFound, Converter={StaticResource StatusToColor}}" />
+
+            <Frame Style="{StaticResource CardAlt}" Padding="0" HeightRequest="50">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Entry Placeholder="Saisie manuelle EPC..." 
+                           Text="{Binding ManualEpc}"
+                           Style="{StaticResource ModernEntry}"
+                           Margin="10,0" />
+                    <Button Grid.Column="1" Text="OK" Command="{Binding ManualScanCommand}" 
+                            BackgroundColor="{StaticResource LeoniMidBlue}" CornerRadius="0" WidthRequest="60" />
+                </Grid>
+            </Frame>
+        </VerticalStackLayout>
+
+        <!-- Result / Animation Area -->
+        <Grid Grid.Row="1" VerticalOptions="Center">
+            
+            <!-- Scanning Animation (Placeholder) -->
+            <VerticalStackLayout IsVisible="{Binding IsScanning}" Spacing="20" VerticalOptions="Center">
+                <ActivityIndicator IsRunning="True" HeightRequest="100" WidthRequest="100" Color="{StaticResource LeoniOrange}" />
+                <Label Text="En attente de tag RFID..." Style="{StaticResource BodyLabel}" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <!-- Scanned Machine Result -->
+            <Frame IsVisible="{Binding HasMachine}" Style="{StaticResource Card}" VerticalOptions="Center" Padding="25">
+                <VerticalStackLayout Spacing="15">
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="EPC:" Style="{StaticResource CaptionLabel}" VerticalOptions="Center" />
+                        <Label Text="{Binding ScannedEpc}" Style="{StaticResource BodyLabel}" FontFamily="RobotoBold" />
+                    </HorizontalStackLayout>
+                    
+                    <BoxView Style="{StaticResource Divider}" />
+
+                    <Label Text="{Binding FoundMachine.Name}" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding FoundMachine.Department}" Style="{StaticResource SubHeadingLabel}" HorizontalTextAlignment="Center" />
+                    
+                    <Frame BackgroundColor="{Binding FoundMachine.Status, Converter={StaticResource StatusToBadge}}" 
+                           Padding="10,5" CornerRadius="5" HorizontalOptions="Center" HasShadow="False">
+                        <Label Text="{Binding FoundMachine.StatusDisplay}" TextColor="White" FontFamily="RobotoBold" />
+                    </Frame>
+
+                    <Button Text="Voir détails complets" 
+                            Style="{StaticResource SecondaryButton}" 
+                            Command="{Binding ViewDetailCommand}" 
+                            Margin="0,15,0,0" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Not Found State -->
+            <VerticalStackLayout IsVisible="{Binding TagNotFound}" Spacing="15" VerticalOptions="Center">
+                <Label Text="⚠️" FontSize="64" HorizontalTextAlignment="Center" />
+                <Label Text="Tag non reconnu" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
+                <Label Text="Ce tag RFID n'est pas associé à une machine dans la base LEONI." 
+                       Style="{StaticResource BodyLabel}" HorizontalTextAlignment="Center" Opacity="0.7" />
+                <Button Text="Réessayer" Style="{StaticResource SecondaryButton}" Command="{Binding StartScanCommand}" WidthRequest="200" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+        </Grid>
+
+        <!-- Action Buttons (Visible only if machine found) -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, *, *" ColumnSpacing="10" IsVisible="{Binding HasMachine}">
+            <Button Text="INSTALLER" 
+                    Command="{Binding SetStatusCommand}" CommandParameter="Installed"
+                    BackgroundColor="{StaticResource StatusInstalled}" HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
+            <Button Grid.Column="1" Text="RETIRER" 
+                    Command="{Binding SetStatusCommand}" CommandParameter="Removed"
+                    BackgroundColor="{StaticResource StatusRemoved}" HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
+            <Button Grid.Column="2" Text="MAINT." 
+                    Command="{Binding SetStatusCommand}" CommandParameter="Maintenance"
+                    BackgroundColor="{StaticResource StatusMaintenance}" HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
+        </Grid>
+
+        <!-- Start/Stop Floating Button if not scanning and no machine -->
+        <Button Grid.Row="2" Text="DÉMARRER SCAN RFID" 
+                IsVisible="{Binding IsScanning, Converter={StaticResource InverseBool}}"
+                Command="{Binding StartScanCommand}"
+                Style="{StaticResource PrimaryButton}" 
+                VerticalOptions="End" />
+
+        <Button Grid.Row="2" Text="ARRÊTER SCAN" 
+                IsVisible="{Binding IsScanning}"
+                Command="{Binding StopScanCommand}"
+                BackgroundColor="#C0392B"
+                Style="{StaticResource PrimaryButton}" 
+                VerticalOptions="End" />
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:helpers="clr-namespace:LeoniRFID.Helpers">
+
+    <!-- ── Converters ────────────────────────────────────────────────── -->
+    <helpers:InverseBoolConverter     x:Key="InverseBool" />
+    <helpers:BoolToVisibilityConverter x:Key="BoolToVisible" />
+    <helpers:StatusToColorConverter   x:Key="StatusToColor" />
+    <helpers:StatusToBadgeColorConverter x:Key="StatusToBadge" />
+    <helpers:DateTimeFormatConverter  x:Key="DateTimeFormat" />
+    <helpers:NullToVisibleConverter   x:Key="NullToVisible" />
+    <helpers:NotNullToVisibleConverter x:Key="NotNullToVisible" />
+
+    <!-- ── Global Page Style ──────────────────────────────────────────── -->
+    <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+        <Setter Property="BackgroundColor" Value="{StaticResource PageBackground}" />
+    </Style>
+
+    <!-- ── Shell ─────────────────────────────────────────────────────── -->
+    <Style TargetType="Shell" ApplyToDerivedTypes="True">
+        <Setter Property="Shell.BackgroundColor"  Value="{StaticResource LeoniDarkBlue}" />
+        <Setter Property="Shell.ForegroundColor"  Value="{StaticResource LeoniWhite}" />
+        <Setter Property="Shell.TitleColor"       Value="{StaticResource LeoniWhite}" />
+        <Setter Property="Shell.DisabledColor"    Value="{StaticResource LeoniGrayMid}" />
+        <Setter Property="Shell.UnselectedColor"  Value="{StaticResource LeoniGrayMid}" />
+        <Setter Property="Shell.NavBarHasShadow"  Value="True" />
+    </Style>
+
+    <!-- ── Labels ────────────────────────────────────────────────────── -->
+    <Style x:Key="HeadingLabel" TargetType="Label">
+        <Setter Property="FontFamily"  Value="RobotoBold" />
+        <Setter Property="FontSize"    Value="22" />
+        <Setter Property="TextColor"   Value="{StaticResource TextPrimary}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <Style x:Key="SubHeadingLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="RobotoMedium" />
+        <Setter Property="FontSize"   Value="16" />
+        <Setter Property="TextColor"  Value="{StaticResource TextSecondary}" />
+    </Style>
+
+    <Style x:Key="BodyLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="RobotoRegular" />
+        <Setter Property="FontSize"   Value="14" />
+        <Setter Property="TextColor"  Value="{StaticResource TextPrimary}" />
+    </Style>
+
+    <Style x:Key="CaptionLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="RobotoRegular" />
+        <Setter Property="FontSize"   Value="12" />
+        <Setter Property="TextColor"  Value="{StaticResource TextMuted}" />
+    </Style>
+
+    <Style x:Key="AccentLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="RobotoBold" />
+        <Setter Property="FontSize"   Value="14" />
+        <Setter Property="TextColor"  Value="{StaticResource LeoniOrange}" />
+    </Style>
+
+    <!-- ── Buttons ────────────────────────────────────────────────────── -->
+    <Style x:Key="PrimaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="{StaticResource ButtonPrimary}" />
+        <Setter Property="TextColor"        Value="{StaticResource LeoniWhite}" />
+        <Setter Property="FontFamily"       Value="RobotoBold" />
+        <Setter Property="FontSize"         Value="16" />
+        <Setter Property="CornerRadius"     Value="12" />
+        <Setter Property="HeightRequest"    Value="52" />
+        <Setter Property="Margin"           Value="0,4" />
+        <Setter Property="FontAttributes"   Value="Bold" />
+    </Style>
+
+    <Style x:Key="SecondaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="{StaticResource ButtonSecondary}" />
+        <Setter Property="TextColor"        Value="{StaticResource TextPrimary}" />
+        <Setter Property="FontFamily"       Value="RobotoMedium" />
+        <Setter Property="FontSize"         Value="15" />
+        <Setter Property="CornerRadius"     Value="12" />
+        <Setter Property="HeightRequest"    Value="52" />
+        <Setter Property="BorderColor"      Value="{StaticResource InputBorder}" />
+        <Setter Property="BorderWidth"      Value="1" />
+        <Setter Property="Margin"           Value="0,4" />
+    </Style>
+
+    <Style x:Key="DangerButton" TargetType="Button">
+        <Setter Property="BackgroundColor"  Value="#C0392B" />
+        <Setter Property="TextColor"        Value="White" />
+        <Setter Property="FontFamily"       Value="RobotoBold" />
+        <Setter Property="FontSize"         Value="14" />
+        <Setter Property="CornerRadius"     Value="8" />
+        <Setter Property="HeightRequest"    Value="40" />
+    </Style>
+
+    <Style x:Key="IconButton" TargetType="ImageButton">
+        <Setter Property="BackgroundColor"  Value="Transparent" />
+        <Setter Property="HeightRequest"    Value="44" />
+        <Setter Property="WidthRequest"     Value="44" />
+        <Setter Property="Padding"          Value="8" />
+    </Style>
+
+    <!-- ── Entries ────────────────────────────────────────────────────── -->
+    <Style x:Key="ModernEntry" TargetType="Entry">
+        <Setter Property="BackgroundColor"  Value="{StaticResource InputBackground}" />
+        <Setter Property="TextColor"        Value="{StaticResource TextPrimary}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+        <Setter Property="FontFamily"       Value="RobotoRegular" />
+        <Setter Property="FontSize"         Value="15" />
+        <Setter Property="HeightRequest"    Value="52" />
+    </Style>
+
+    <!-- ── Frames / Cards ──────────────────────────────────────────────── -->
+    <Style x:Key="Card" TargetType="Frame">
+        <Setter Property="BackgroundColor"  Value="{StaticResource CardBackground}" />
+        <Setter Property="BorderColor"      Value="{StaticResource DividerColor}" />
+        <Setter Property="CornerRadius"     Value="16" />
+        <Setter Property="Padding"          Value="16" />
+        <Setter Property="HasShadow"        Value="True" />
+    </Style>
+
+    <Style x:Key="CardAlt" TargetType="Frame">
+        <Setter Property="BackgroundColor"  Value="{StaticResource CardBackgroundAlt}" />
+        <Setter Property="BorderColor"      Value="{StaticResource InputBorder}" />
+        <Setter Property="CornerRadius"     Value="12" />
+        <Setter Property="Padding"          Value="14" />
+        <Setter Property="HasShadow"        Value="False" />
+    </Style>
+
+    <!-- ── Separator ──────────────────────────────────────────────────── -->
+    <Style x:Key="Divider" TargetType="BoxView">
+        <Setter Property="HeightRequest"    Value="1" />
+        <Setter Property="Color"            Value="{StaticResource DividerColor}" />
+        <Setter Property="Margin"           Value="0,8" />
+    </Style>
+
+    <!-- ── Activity Indicator ─────────────────────────────────────────── -->
+    <Style TargetType="ActivityIndicator">
+        <Setter Property="Color" Value="{StaticResource LeoniOrange}" />
+    </Style>
+
+</ResourceDictionary>

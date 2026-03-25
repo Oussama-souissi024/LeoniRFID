@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
+             xmlns:models="clr-namespace:LeoniRFID.Models"
+             x:Class="LeoniRFID.Views.MachineDetailPage"
+             x:DataType="vm:MachineDetailViewModel"
+             Title="Détails Machine">
+
+    <Grid RowDefinitions="*, Auto">
+        
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20" Spacing="20">
+                
+                <!-- Header Card -->
+                <Border Style="{StaticResource Card}" Padding="20" StrokeShape="RoundRectangle 15">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding Machine.Name}" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding Machine.TagId}" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" Margin="0,-5,0,0" />
+                        
+                        <BoxView Style="{StaticResource Divider}" />
+
+                        <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto" ColumnSpacing="10" RowSpacing="15">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0">
+                                <Label Text="Département" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Machine.Department}" Style="{StaticResource BodyLabel}" />
+                            </VerticalStackLayout>
+                            
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1">
+                                <Label Text="Statut Actuel" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Machine.StatusDisplay}" 
+                                       TextColor="{Binding Machine.Status, Converter={StaticResource StatusToColor}}" 
+                                       FontFamily="RobotoBold" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0">
+                                <Label Text="Installation" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Machine.InstallationDate, Converter={StaticResource DateTimeFormat}}" Style="{StaticResource BodyLabel}" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1">
+                                <Label Text="Dernière MAJ" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Machine.LastUpdated, Converter={StaticResource DateTimeFormat}}" Style="{StaticResource BodyLabel}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Admin Edit Section -->
+                <Border IsVisible="{Binding IsAdmin}" Style="{StaticResource CardAlt}" Padding="15" StrokeShape="RoundRectangle 15">
+                     <VerticalStackLayout Spacing="10">
+                         <Label Text="Actions Administrateur" Style="{StaticResource BodyLabel}" FontFamily="RobotoBold" />
+                         <Button Text="{Binding IsEditing, Converter={StaticResource InverseBool}, ConverterParameter='ÉDITER LES INFORMATIONS'}" 
+                                 TextTransform="None"
+                                 Command="{Binding StartEditCommand}" 
+                                 IsVisible="{Binding IsEditing, Converter={StaticResource InverseBool}}"
+                                 Style="{StaticResource SecondaryButton}" HeightRequest="40" FontSize="13" />
+                         
+                         <VerticalStackLayout IsVisible="{Binding IsEditing}" Spacing="10">
+                            <Entry Text="{Binding EditName}" Placeholder="Nom de la machine" Style="{StaticResource ModernEntry}" />
+                            <Entry Text="{Binding EditNotes}" Placeholder="Notes techniques..." Style="{StaticResource ModernEntry}" />
+
+                            <Grid ColumnDefinitions="*, *">
+                                <Button Text="ANNULER" Command="{Binding CancelEditCommand}" Style="{StaticResource SecondaryButton}" Margin="0,0,5,0" />
+                                <Button Grid.Column="1" Text="ENREGISTRER" Command="{Binding SaveEditAsyncCommand}" Style="{StaticResource PrimaryButton}" Margin="5,0,0,0" />
+                            </Grid>
+                         </VerticalStackLayout>
+                     </VerticalStackLayout>
+                </Border>
+
+                <!-- History -->
+                <Label Text="Historique des scans" Style="{StaticResource HeadingLabel}" FontSize="16" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Events}" Spacing="5">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:ScanEvent">
+                            <Border Style="{StaticResource CardAlt}" Padding="10" Margin="0,2" StrokeShape="RoundRectangle 10">
+                                <Grid ColumnDefinitions="Auto, *, Auto">
+                                    <Label Text="{Binding EventIcon}" VerticalOptions="Center" FontSize="20" />
+                                    <VerticalStackLayout Grid.Column="1" Margin="10,0" VerticalOptions="Center">
+                                        <Label Text="{Binding EventType}" Style="{StaticResource BodyLabel}" FontSize="13" />
+                                        <Label Text="{Binding TimestampDisplay}" Style="{StaticResource CaptionLabel}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="Synchronisé" IsVisible="{Binding IsSynced}" TextColor="Green" FontSize="10" VerticalOptions="End" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.RowSpan="2" BackgroundColor="#AA000000" IsVisible="{Binding IsBusy}">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
+</ContentPage>

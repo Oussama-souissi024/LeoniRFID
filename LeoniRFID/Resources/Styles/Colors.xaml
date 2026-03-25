@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ── LEONI Brand Colors ─────────────────────────────────────────── -->
+    <Color x:Key="LeoniDarkBlue">#00205B</Color>
+    <Color x:Key="LeoniMidBlue">#003087</Color>
+    <Color x:Key="LeoniLightBlue">#004BC1</Color>
+    <Color x:Key="LeoniOrange">#E8490F</Color>
+    <Color x:Key="LeoniOrangeDark">#C23A0A</Color>
+    <Color x:Key="LeoniWhite">#FFFFFF</Color>
+    <Color x:Key="LeoniGrayLight">#F2F4F8</Color>
+    <Color x:Key="LeoniGrayMid">#8A909A</Color>
+    <Color x:Key="LeoniGrayDark">#4A4F54</Color>
+    <Color x:Key="LeoniBlack">#0D0D0D</Color>
+
+    <!-- ── Background ────────────────────────────────────────────────── -->
+    <Color x:Key="PageBackground">#0A0E1A</Color>
+    <Color x:Key="CardBackground">#121829</Color>
+    <Color x:Key="CardBackgroundAlt">#1A2035</Color>
+    <Color x:Key="SurfaceBackground">#0F1520</Color>
+
+    <!-- ── Text ──────────────────────────────────────────────────────── -->
+    <Color x:Key="TextPrimary">#FFFFFF</Color>
+    <Color x:Key="TextSecondary">#A0A8B8</Color>
+    <Color x:Key="TextMuted">#5A6070</Color>
+    <Color x:Key="TextAccent">#E8490F</Color>
+
+    <!-- ── Status Colors ──────────────────────────────────────────────── -->
+    <Color x:Key="StatusInstalled">#2ECC71</Color>
+    <Color x:Key="StatusRemoved">#E74C3C</Color>
+    <Color x:Key="StatusMaintenance">#F39C12</Color>
+
+    <!-- ── Interactive ────────────────────────────────────────────────── -->
+    <Color x:Key="ButtonPrimary">#E8490F</Color>
+    <Color x:Key="ButtonPrimaryHover">#C23A0A</Color>
+    <Color x:Key="ButtonSecondary">#1A2035</Color>
+    <Color x:Key="InputBackground">#151E30</Color>
+    <Color x:Key="InputBorder">#253050</Color>
+    <Color x:Key="InputBorderFocus">#004BC1</Color>
+    <Color x:Key="DividerColor">#1E2940</Color>
+
+</ResourceDictionary>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
+             xmlns:models="clr-namespace:LeoniRFID.Models"
+             x:Class="LeoniRFID.Views.ReportPage"
+             x:DataType="vm:ReportViewModel"
+             Title="Rapports d'activité">
+
+    <Grid RowDefinitions="Auto, *">
+        
+        <!-- Filters Header -->
+        <Frame Grid.Row="0" Style="{StaticResource Card}" Margin="10" Padding="15">
+            <VerticalStackLayout Spacing="15">
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Département" Style="{StaticResource CaptionLabel}" />
+                        <Picker ItemsSource="{Binding Departments}" SelectedItem="{Binding SelectedDepartment}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Text="Statut" Style="{StaticResource CaptionLabel}" />
+                        <Picker ItemsSource="{Binding Statuses}" SelectedItem="{Binding SelectedStatus}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Button Text="GÉNÉRER LE RAPPORT" Command="{Binding RunReportCommand}" Style="{StaticResource PrimaryButton}" HeightRequest="44" />
+                <Button Text="EXPORTER EN EXCEL (.xlsx)" Command="{Binding ExportToExcelCommand}" Style="{StaticResource SecondaryButton}" HeightRequest="44" />
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- Results -->
+        <CollectionView Grid.Row="1" ItemsSource="{Binding FilteredMachines}" Margin="10,0">
+            <CollectionView.EmptyView>
+                <Label Text="Utilisez les filtres pour afficher des données." HorizontalTextAlignment="Center" Margin="50" TextColor="{StaticResource TextMuted}" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Machine">
+                    <Frame Style="{StaticResource CardAlt}" Margin="0,5" Padding="12">
+                         <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Name}" FontFamily="RobotoBold" FontSize="14" />
+                                <Label Text="{Binding TagId}" FontSize="10" TextColor="{StaticResource TextMuted}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="{Binding StatusDisplay}" 
+                                   TextColor="{Binding Status, Converter={StaticResource StatusToColor}}" 
+                                   FontSize="12" FontFamily="RobotoBold" VerticalOptions="Center" />
+                         </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.RowSpan="2" BackgroundColor="#AA000000" IsVisible="{Binding IsBusy}">
+            <ActivityIndicator IsRunning="True" VerticalOptions="Center" />
+        </Grid>
+    </Grid>
+</ContentPage>
