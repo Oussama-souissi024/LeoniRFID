@@ -41,6 +41,12 @@
             Route="admin" />
     </FlyoutItem>
 
+    <FlyoutItem x:Name="UserMgmtFlyoutItem" Title="Gestion utilisateurs" Icon="admin_icon.png">
+        <ShellContent 
+            ContentTemplate="{DataTemplate views:UserManagementPage}" 
+            Route="usermanagement" />
+    </FlyoutItem>
+
     <MenuItem Text="Déconnexion" Clicked="OnLogoutClicked" />
 
 </Shell>

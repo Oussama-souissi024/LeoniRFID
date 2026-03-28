@@ -57,8 +57,7 @@ public class ExcelService
                     Name             = name,
                     Department       = dept,
                     Status           = status,
-                    InstallationDate = installDate != default ? installDate : DateTime.Now,
-                    IsSynced         = false
+                    InstallationDate = installDate != default ? installDate : DateTime.Now
                 });
             }
             catch { /* Skip malformed rows */ }
@@ -118,9 +117,9 @@ public class ExcelService
         {
             ws2.Cell(row, 1).Value = e.Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
             ws2.Cell(row, 2).Value = e.TagId;
-            ws2.Cell(row, 3).Value = e.MachineName ?? "—";
+            ws2.Cell(row, 3).Value = e.TagId ?? "—";
             ws2.Cell(row, 4).Value = e.EventType;
-            ws2.Cell(row, 5).Value = e.UserFullName ?? "—";
+            ws2.Cell(row, 5).Value = e.UserId ?? "—";
             ws2.Cell(row, 6).Value = e.Notes ?? "";
             row++;
         }

@@ -1,34 +1,32 @@
-using SQLite;
+using Postgrest.Attributes;
+using Postgrest.Models;
 
 namespace LeoniRFID.Models;
 
-[Table("ScanEvents")]
-public class ScanEvent
+[Table("scan_events")]
+public class ScanEvent : BaseModel
 {
-    [PrimaryKey, AutoIncrement]
+    [PrimaryKey("id", false)]
     public int Id { get; set; }
 
-    [MaxLength(100), NotNull]
+    [Column("tag_id")]
     public string TagId { get; set; } = string.Empty;
 
+    [Column("machine_id")]
     public int MachineId { get; set; }
-    public int UserId { get; set; }
 
-    [MaxLength(30)]
-    public string EventType { get; set; } = "Scan";         // Scan|Install|Remove|Maintenance
+    [Column("user_id")]
+    public string? UserId { get; set; }
 
+    [Column("event_type")]
+    public string EventType { get; set; } = "Scan";
+
+    [Column("timestamp")]
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
-    [MaxLength(500)]
+    [Column("notes")]
     public string? Notes { get; set; }
 
-    public bool IsSynced { get; set; } = false;
-
-    // Navigation (ignored by SQLite)
-    [Ignore] public string? MachineName { get; set; }
-    [Ignore] public string? UserFullName { get; set; }
-
-    [Ignore]
     public string EventIcon => EventType switch
     {
         "Install"     => "📥",
@@ -37,6 +35,6 @@ public class ScanEvent
         _             => "📡",
     };
 
-    [Ignore]
-    public string TimestampDisplay => Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
+    public string TimestampDisplay =>
+        Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
 }

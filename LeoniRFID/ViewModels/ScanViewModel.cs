@@ -8,14 +8,12 @@ namespace LeoniRFID.ViewModels;
 public partial class ScanViewModel : BaseViewModel
 {
     private readonly IRfidService    _rfid;
-    private readonly DatabaseService _db;
-    private readonly AuthService     _auth;
+    private readonly SupabaseService _supabase;
 
-    public ScanViewModel(IRfidService rfid, DatabaseService db, AuthService auth)
+    public ScanViewModel(SupabaseService supabase, IRfidService rfid)
     {
-        _rfid  = rfid;
-        _db    = db;
-        _auth  = auth;
+        _supabase = supabase;
+        _rfid = rfid;
         Title  = "Scanner RFID";
 
         _rfid.TagScanned += OnTagScanned;
@@ -73,7 +71,7 @@ public partial class ScanViewModel : BaseViewModel
 
         try
         {
-            FoundMachine = await _db.GetMachineByTagIdAsync(epc);
+            FoundMachine = await _supabase.GetMachineByTagIdAsync(epc);
             TagNotFound  = FoundMachine is null;
 
             if (TagNotFound)
@@ -85,7 +83,17 @@ public partial class ScanViewModel : BaseViewModel
 
             // Log scan event
             if (FoundMachine is not null)
-                await LogEventAsync(epc, FoundMachine.Id, "Scan");
+            {
+                var scanEvent = new ScanEvent
+                {
+                    TagId = epc,
+                    MachineId = FoundMachine.Id,
+                    UserId = _supabase.CurrentProfile?.Id,
+                    EventType = "Scan",
+                    Timestamp = DateTime.UtcNow
+                };
+                await _supabase.SaveScanEventAsync(scanEvent);
+            }
         }
         finally { IsBusy = false; }
     }
@@ -113,27 +121,24 @@ public partial class ScanViewModel : BaseViewModel
             if (status == "Installed")  FoundMachine.InstallationDate = DateTime.Now;
             if (status == "Removed")    FoundMachine.ExitDate         = DateTime.Now;
 
-            await _db.SaveMachineAsync(FoundMachine);
-            await LogEventAsync(ScannedEpc, FoundMachine.Id, status == "Installed" ? "Install" : status == "Removed" ? "Remove" : "Maintenance");
+            await _supabase.SaveMachineAsync(FoundMachine);
+
+            var scanEvent = new ScanEvent
+            {
+                TagId = FoundMachine.TagId,
+                MachineId = FoundMachine.Id,
+                UserId = _supabase.CurrentProfile?.Id,
+                EventType = status,
+                Notes = $"Status changed to {status} from PDA",
+                Timestamp = DateTime.UtcNow
+            };
+
+            await _supabase.SaveScanEventAsync(scanEvent);
 
             SetSuccess($"Statut mis à jour : {status}");
             OnPropertyChanged(nameof(FoundMachine));
         }
         finally { IsBusy = false; }
-    }
-
-    private async Task LogEventAsync(string epc, int machineId, string eventType)
-    {
-        var ev = new ScanEvent
-        {
-            TagId      = epc,
-            MachineId  = machineId,
-            UserId     = _auth.CurrentUser?.Id ?? 0,
-            EventType  = eventType,
-            Timestamp  = DateTime.UtcNow,
-            IsSynced   = false
-        };
-        await _db.SaveScanEventAsync(ev);
     }
 
     [RelayCommand]

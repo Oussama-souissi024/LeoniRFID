@@ -27,16 +27,9 @@ public static class MauiProgram
             });
 
         // ── Services ──────────────────────────────────────────────────────────
-        builder.Services.AddSingleton<DatabaseService>();
-        builder.Services.AddSingleton<AuthService>();
+        builder.Services.AddSingleton<SupabaseService>();
         builder.Services.AddSingleton<IRfidService, RfidService>();
-        builder.Services.AddSingleton<SyncService>();
         builder.Services.AddSingleton<ExcelService>();
-        builder.Services.AddHttpClient<ApiService>(client =>
-        {
-            client.BaseAddress = new Uri(Constants.ApiBaseUrl);
-            client.Timeout = TimeSpan.FromSeconds(15);
-        });
 
         // ── ViewModels ────────────────────────────────────────────────────────
         builder.Services.AddTransient<LoginViewModel>();
@@ -45,6 +38,7 @@ public static class MauiProgram
         builder.Services.AddTransient<MachineDetailViewModel>();
         builder.Services.AddTransient<AdminViewModel>();
         builder.Services.AddTransient<ReportViewModel>();
+        builder.Services.AddTransient<UserManagementViewModel>();
 
         // ── Pages ─────────────────────────────────────────────────────────────
         builder.Services.AddTransient<LoginPage>();
@@ -53,6 +47,7 @@ public static class MauiProgram
         builder.Services.AddTransient<MachineDetailPage>();
         builder.Services.AddTransient<AdminPage>();
         builder.Services.AddTransient<ReportPage>();
+        builder.Services.AddTransient<UserManagementPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

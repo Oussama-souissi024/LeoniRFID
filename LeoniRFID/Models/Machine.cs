@@ -1,35 +1,38 @@
-using SQLite;
+using Postgrest.Attributes;
+using Postgrest.Models;
 
 namespace LeoniRFID.Models;
 
-[Table("Machines")]
-public class Machine
+[Table("machines")]
+public class Machine : BaseModel
 {
-    [PrimaryKey, AutoIncrement]
+    [PrimaryKey("id", false)]
     public int Id { get; set; }
 
-    [MaxLength(100), NotNull]
-    public string TagId { get; set; } = string.Empty;        // EPC RFID
+    [Column("tag_id")]
+    public string TagId { get; set; } = string.Empty;
 
-    [MaxLength(150), NotNull]
+    [Column("name")]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(10)]
-    public string Department { get; set; } = string.Empty;   // LTN1/LTN2/LTN3
+    [Column("department")]
+    public string Department { get; set; } = string.Empty;
 
-    [MaxLength(30)]
-    public string Status { get; set; } = "Installed";        // Installed|Removed|Maintenance
+    [Column("status")]
+    public string Status { get; set; } = "Installed";
 
+    [Column("installation_date")]
     public DateTime InstallationDate { get; set; } = DateTime.Now;
+
+    [Column("exit_date")]
     public DateTime? ExitDate { get; set; }
 
-    [MaxLength(300)]
+    [Column("notes")]
     public string? Notes { get; set; }
 
-    public bool IsSynced { get; set; } = false;
+    [Column("last_updated")]
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 
-    [Ignore]
     public string StatusDisplay => Status switch
     {
         "Installed"   => "✅ Installé",
@@ -38,7 +41,8 @@ public class Machine
         _             => Status
     };
 
-    [Ignore]
     public string InstallationDateDisplay =>
-        InstallationDate != default ? InstallationDate.ToString("dd/MM/yyyy") : "—";
+        InstallationDate != default
+            ? InstallationDate.ToString("dd/MM/yyyy")
+            : "—";
 }
