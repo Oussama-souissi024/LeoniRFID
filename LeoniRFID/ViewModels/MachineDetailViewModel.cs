@@ -9,13 +9,11 @@ namespace LeoniRFID.ViewModels;
 [QueryProperty(nameof(MachineId), "machineId")]
 public partial class MachineDetailViewModel : BaseViewModel
 {
-    private readonly DatabaseService _db;
-    private readonly AuthService     _auth;
+    private readonly SupabaseService _supabase;
 
-    public MachineDetailViewModel(DatabaseService db, AuthService auth)
+    public MachineDetailViewModel(SupabaseService supabase)
     {
-        _db   = db;
-        _auth = auth;
+        _supabase = supabase;
         Title = "Détails Machine";
     }
 
@@ -39,10 +37,10 @@ public partial class MachineDetailViewModel : BaseViewModel
     public async Task LoadAsync()
     {
         IsBusy  = true;
-        IsAdmin = _auth.IsAdmin;
+        IsAdmin = _supabase.IsAdmin;
         try
         {
-            Machine = await _db.GetMachineByIdAsync(MachineId);
+            Machine = await _supabase.GetMachineByIdAsync(MachineId);
             if (Machine is null) return;
 
             Title        = Machine.Name;
@@ -51,7 +49,7 @@ public partial class MachineDetailViewModel : BaseViewModel
             EditStatus     = Machine.Status;
             EditNotes      = Machine.Notes ?? string.Empty;
 
-            var events = await _db.GetEventsByMachineAsync(MachineId);
+            var events = await _supabase.GetEventsByMachineAsync(MachineId);
             Events.Clear();
             foreach (var e in events) Events.Add(e);
         }
@@ -76,7 +74,7 @@ public partial class MachineDetailViewModel : BaseViewModel
             Machine.Department = EditDepartment;
             Machine.Status     = EditStatus;
             Machine.Notes      = EditNotes;
-            await _db.SaveMachineAsync(Machine);
+            await _supabase.SaveMachineAsync(Machine);
             IsEditing = false;
             SetSuccess("Machine mise à jour.");
             await LoadAsync();

@@ -8,12 +8,12 @@ namespace LeoniRFID.ViewModels;
 
 public partial class ReportViewModel : BaseViewModel
 {
-    private readonly DatabaseService _db;
+    private readonly SupabaseService _supabase;
     private readonly ExcelService    _excel;
 
-    public ReportViewModel(DatabaseService db, ExcelService excel)
+    public ReportViewModel(SupabaseService supabase, ExcelService excel)
     {
-        _db    = db;
+        _supabase = supabase;
         _excel = excel;
         Title  = "Rapports & Export";
         
@@ -38,12 +38,11 @@ public partial class ReportViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var all = await _db.GetAllMachinesAsync();
+            var allMachines = string.IsNullOrEmpty(SelectedDepartment) || SelectedDepartment == "Tous"
+                ? await _supabase.GetAllMachinesAsync()
+                : await _supabase.GetMachinesByDepartmentAsync(SelectedDepartment);
             
-            var query = all.AsEnumerable();
-
-            if (SelectedDepartment != "Tous")
-                query = query.Where(m => m.Department == SelectedDepartment);
+            var query = allMachines.AsEnumerable();
             
             if (SelectedStatus != "Tous")
                 query = query.Where(m => m.Status == SelectedStatus);
@@ -76,7 +75,7 @@ public partial class ReportViewModel : BaseViewModel
         try
         {
             // Get all events for these machines for a complete export
-            var allEvents = await _db.GetRecentEventsAsync(500);
+            var allEvents = await _supabase.GetRecentEventsAsync(500);
             
             var stream = _excel.ExportReport(FilteredMachines.ToList(), allEvents);
             
