@@ -14,6 +14,10 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder();
 
+        // Commentaire pédagogique :
+        // - `MauiApp.CreateBuilder()` initialise le pipeline MAUI et la collection de services DI.
+        // - Ici nous enregistrons les services, ViewModels et Pages utilisés par l'application.
+        // - `UseMauiCommunityToolkit()` active les helpers du CommunityToolkit (animations, converters, behaviours).
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()

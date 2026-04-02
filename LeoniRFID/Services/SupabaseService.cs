@@ -8,6 +8,10 @@ public class SupabaseService
     private readonly Supabase.Client _client;
     private Profile? _currentProfile;
 
+    // Commentaire pédagogique :
+    // - `SupabaseService` encapsule l'accès au backend Supabase (auth, CRUD).
+    // - Toujours garder le code d'accès réseau séparé des ViewModels pour respecter le principe de séparation des responsabilités.
+
     public SupabaseService()
     {
         var options = new Supabase.SupabaseOptions

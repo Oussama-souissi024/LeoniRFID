@@ -1,3 +1,7 @@
+// Ce fichier contient la classe `BaseViewModel`.
+// Commentaire pédagogique :
+// - `BaseViewModel` fournit des propriétés et méthodes communes pour tous les ViewModels (gestion de l'état, messages d'erreur/succès).
+// - Utiliser un ViewModel de base évite la duplication de code et facilite les tests.
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 

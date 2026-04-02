@@ -7,6 +7,10 @@
              x:DataType="vm:DashboardViewModel"
              Title="Tableau de bord">
 
+    <!-- Commentaire pédagogique :
+         - `ToolbarItems` permet d'ajouter des actions accessibles dans la barre d'app.
+         - Les commandes sont liées au ViewModel via `Binding` pour séparer UI et logique.
+    -->
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Déconnexion" Command="{Binding LogoutCommand}" />
     </ContentPage.ToolbarItems>

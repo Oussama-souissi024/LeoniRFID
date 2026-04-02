@@ -1,3 +1,6 @@
+// Commentaire pédagogique :
+// - `LoginViewModel` contient la logique d'authentification et expose les commandes/états utilisés par la vue `LoginPage`.
+// - Les ViewModels doivent rester sans dépendances UI pour faciliter le test unitaire.
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LeoniRFID.Services;

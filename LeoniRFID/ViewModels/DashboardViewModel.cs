@@ -34,7 +34,10 @@ public partial class DashboardViewModel : BaseViewModel
     [ObservableProperty] private int _ltn3Count;
 
     // ── Recent events ─────────────────────────────────────────────────────────
-    public ObservableCollection<ScanEvent> RecentEvents { get; } = [];
+    // Collection des événements récents affichée dans la vue.
+    // Commentaire pédagogique :
+    // - Toujours initialiser les collections pour éviter les NullReferenceException côté UI.
+    public ObservableCollection<ScanEvent> RecentEvents { get; } = new ObservableCollection<ScanEvent>();
 
     // ── Sync (Cloud direct, pas de sync offline) ──────────────────────────────
     [ObservableProperty] private string _syncStatus = "Cloud connecté";

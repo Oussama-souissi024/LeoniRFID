@@ -3,6 +3,9 @@ using System.Globalization;
 namespace LeoniRFID.Helpers;
 
 // ── Bool → Invert ─────────────────────────────────────────────────────────────
+// Commentaire pédagogique :
+// - Les converters permettent de transformer des valeurs du ViewModel avant affichage en XAML.
+// - Ici `InverseBoolConverter` inverse un booléen (utile pour afficher/masquer des éléments).
 public class InverseBoolConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -12,6 +15,8 @@ public class InverseBoolConverter : IValueConverter
 }
 
 // ── Bool → Visibility ─────────────────────────────────────────────────────────
+// Commentaire pédagogique :
+// - `BoolToVisibilityConverter` convertit un booléen en visibilité (true → visible, false → collapsed).
 public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -21,6 +26,8 @@ public class BoolToVisibilityConverter : IValueConverter
 }
 
 // ── Status → Color ────────────────────────────────────────────────────────────
+// Commentaire pédagogique :
+// - `StatusToColorConverter` mappe un statut métier sur une couleur d'UI (améliore la lisibilité).
 public class StatusToColorConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -38,6 +45,8 @@ public class StatusToColorConverter : IValueConverter
 }
 
 // ── Status → Badge Background ─────────────────────────────────────────────────
+// Commentaire pédagogique :
+// - `StatusToBadgeColorConverter` fournit une couleur de fond pour les badges de statut.
 public class StatusToBadgeColorConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -55,6 +64,8 @@ public class StatusToBadgeColorConverter : IValueConverter
 }
 
 // ── DateTime → Formatted String ───────────────────────────────────────────────
+// Commentaire pédagogique :
+// - `DateTimeFormatConverter` formate les dates pour affichage (centralise le formatage en un seul endroit).
 public class DateTimeFormatConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -68,6 +79,8 @@ public class DateTimeFormatConverter : IValueConverter
 }
 
 // ── Null → Visibility ─────────────────────────────────────────────────────────
+// Commentaire pédagogique :
+// - `NullToVisibleConverter` et `NotNullToVisibleConverter` facilitent l'affichage conditionnel basé sur la nullité des données.
 public class NullToVisibleConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

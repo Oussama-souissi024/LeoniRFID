@@ -15,6 +15,9 @@ public partial class AppShell : Shell
         try
         {
             // Initialise le XAML de la Shell (peut lancer une exception si un resource/contrôle est manquant)
+            // Commentaire pédagogique :
+            // - `InitializeComponent` charge `AppShell.xaml` et les contrôles/ressources utilisés par la Shell.
+            // - Une image ou un StaticResource manquant dans le XAML provoquera une exception ici.
             InitializeComponent();
 
             // Register routes for pages not in Shell hierarchy

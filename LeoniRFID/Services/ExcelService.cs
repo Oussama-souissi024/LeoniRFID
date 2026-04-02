@@ -5,6 +5,9 @@ namespace LeoniRFID.Services;
 
 public class ExcelService
 {
+    // Commentaire pédagogique :
+    // - `ExcelService` centralise l'import/export Excel (ClosedXML).
+    // - Les services utilitaires doivent rester découplés des ViewModels pour réutilisabilité.
     // ── Import ────────────────────────────────────────────────────────────────
     /// <summary>
     /// Parse a LEONI machine Excel file.

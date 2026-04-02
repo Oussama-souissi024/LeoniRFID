@@ -6,6 +6,9 @@ using System.Collections.ObjectModel;
 
 namespace LeoniRFID.ViewModels;
 
+// Commentaire pédagogique :
+// - `AdminViewModel` gère les opérations réservées aux administrateurs (gestion des machines, import/export, utilisateurs).
+// - Séparer la logique métier (service) de la présentation (ViewModel) permet des tests unitaires et une maintenance plus facile.
 public partial class AdminViewModel : BaseViewModel
 {
     private readonly SupabaseService _supabase;
@@ -18,8 +21,9 @@ public partial class AdminViewModel : BaseViewModel
         Title  = "Administration";
     }
 
-    public ObservableCollection<Machine> Machines { get; } = [];
-    public ObservableCollection<Profile>  Users    { get; } = [];
+    // Initialiser les collections pour éviter les NullReferenceException côté UI
+    public ObservableCollection<Machine> Machines { get; } = new ObservableCollection<Machine>();
+    public ObservableCollection<Profile>  Users    { get; } = new ObservableCollection<Profile>();
 
     [ObservableProperty] private string _importStatus = string.Empty;
 
