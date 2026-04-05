@@ -2,41 +2,30 @@ namespace LeoniRFID.Helpers;
 
 public static class Constants
 {
-    // ── API ───────────────────────────────────────────────────────────────────
-    public const string ApiBaseUrl = "https://api.leoni-rfid.local/api/v1/";
+    // 🎓 Pédagogie PFE : Centraliser la configuration magique
+    // Au lieu d'avoir l'URL et les clés de la base de données dispersées dans 10 fichiers différents,
+    // on centralise tout ici. C'est l'essence même du développement propre (DRY : Don't Repeat Yourself).
 
-    // ── Auth ──────────────────────────────────────────────────────────────────
-    public const string GoogleClientId = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
-    public const string SessionTokenKey = "leoni_session_token";
-    public const string CurrentUserKey  = "leoni_current_user";
+    // ── Supabase (BaaS) : URL et clés publiques/privées
+    public const string SupabaseUrl = "https://slxcwjgargafbvnitact.supabase.co";
+    // Clé publique (anon) utilisée côté client. Ne pas confondre avec la clé de service (privée).
+    public const string SupabaseAnonKey = "sb_publishable_lfFMzw0_GEFREdU-X-J_Iw_kHven22Z";
+    // Clé de service (ne pas exposer côté client dans une app mobile publique).
+    public const string SupabaseServiceRoleKey = "sb_secret_HvoLXCNtXOM4AnNZZrlVug_26YWZHgo";
 
-    // ── Database ──────────────────────────────────────────────────────────────
-    public const string DatabaseFilename = "leoni_rfid.db3";
-    public static string DatabasePath =>
-        Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
+    // ── Rôles utilisateurs
+    public const string RoleAdmin      = "Admin";
+    public const string RoleTechnician = "Technician";
 
-    // ── Departments ───────────────────────────────────────────────────────────
-    public static readonly string[] Departments = ["LTN1", "LTN2", "LTN3"];
-
-    // ── Machine Statuses ──────────────────────────────────────────────────────
+    // ── Statuts Machine
     public const string StatusInstalled   = "Installed";
     public const string StatusRemoved     = "Removed";
     public const string StatusMaintenance = "Maintenance";
 
-    // ── Roles ─────────────────────────────────────────────────────────────────
-    public const string RoleAdmin      = "Admin";
-    public const string RoleTechnician = "Technician";
+    // ── Départements (exemple statique)
+    public static readonly string[] Departments = new[] { "LTN1", "LTN2", "LTN3" };
 
-    // ── Zebra DataWedge ───────────────────────────────────────────────────────
-    public const string DataWedgeAction      = "com.symbol.datawedge.api.ACTION";
-    public const string DataWedgeCategoryDefault = "android.intent.category.DEFAULT";
-    public const string DataWedgeScanResult  = "com.symbol.datawedge.data.RESULT_ACTION";
-    public const string DataWedgeEpcData     = "com.symbol.datawedge.data_string";
-    public const string DataWedgeLabelType   = "com.symbol.datawedge.label_type";
-
-    // ── Test Accounts ─────────────────────────────────────────────────────────
-    public const string TestAdminEmail     = "admin@leoni.com";
-    public const string TestAdminPassword  = "Admin@1234";
-    public const string TestTechEmail      = "tech@leoni.com";
-    public const string TestTechPassword   = "Tech@1234";
+    // ── Intégration Zebra DataWedge (intents)
+    public const string DataWedgeAction     = "com.symbol.datawedge.api.ACTION";
+    public const string DataWedgeEpcData    = "com.symbol.datawedge.data_string";
 }

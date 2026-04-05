@@ -7,28 +7,38 @@
              x:DataType="vm:DashboardViewModel"
              Title="Tableau de bord">
 
+    <!-- Commentaire pédagogique :
+         - `ToolbarItems` permet d'ajouter des actions accessibles dans la barre d'app.
+         - Les commandes sont liées au ViewModel via `Binding` pour séparer UI et logique.
+    -->
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Déconnexion" Command="{Binding LogoutCommand}" />
     </ContentPage.ToolbarItems>
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="25">
+        <VerticalStackLayout Padding="24,30" Spacing="30">
 
-            <!-- Welcome Section -->
+            <!-- Hero / Welcome Section -->
+            <VerticalStackLayout Spacing="5" Margin="0,0,0,10">
+                <Label Text="We are LEONI." Style="{StaticResource HeadingLabel}" FontSize="28" TextColor="{StaticResource LeoniDarkBlue}" />
+                <Label Text="Your Empowering Connection." Style="{StaticResource SubHeadingLabel}" TextColor="{StaticResource LeoniOrange}" FontAttributes="Italic" />
+            </VerticalStackLayout>
+
             <Grid ColumnDefinitions="Auto, *" ColumnSpacing="15">
-                <Border StrokeShape="RoundRectangle 30,30,30,30" 
-                        WidthRequest="60" 
-                        HeightRequest="60" 
-                        Padding="0" 
-                        BackgroundColor="{StaticResource LeoniOrange}"
-                        Stroke="Transparent">
+                <Frame WidthRequest="60" 
+                       HeightRequest="60" 
+                       CornerRadius="30" 
+                       Padding="0" 
+                       BackgroundColor="{StaticResource LeoniOrange}"
+                       HasShadow="False"
+                       BorderColor="Transparent">
                     <Label Text="{Binding UserInitials}" 
                            TextColor="White"
                            HorizontalTextAlignment="Center" 
                            VerticalTextAlignment="Center"
                            FontFamily="RobotoBold" 
                            FontSize="24" />
-                </Border>
+                </Frame>
                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                     <Label Text="{Binding UserName}" Style="{StaticResource HeadingLabel}" FontSize="18" />
                     <Label Text="{Binding UserRole}" Style="{StaticResource SubHeadingLabel}" />
@@ -37,74 +47,76 @@
 
             <!-- Quick Action Cards -->
             <Grid ColumnDefinitions="*, *" ColumnSpacing="15" RowDefinitions="Auto, Auto" RowSpacing="15">
-                <Border Style="{StaticResource Card}" Padding="20" StrokeShape="RoundRectangle 15">
-                    <Border.GestureRecognizers>
+                <!-- Main Scan Card (Full Width) -->
+                <Frame Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource Card}" CornerRadius="20" BackgroundColor="{StaticResource LeoniDarkBlue}">
+                    <Frame.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoToScanAsyncCommand}" />
-                    </Border.GestureRecognizers>
+                    </Frame.GestureRecognizers>
                     <Grid ColumnDefinitions="*, Auto">
-                        <VerticalStackLayout Spacing="5">
-                             <Label Text="Lancer un Scan" Style="{StaticResource HeadingLabel}" />
-                             <Label Text="Scanner un tag UHF RFID Zebra" Style="{StaticResource SubHeadingLabel}" />
+                        <VerticalStackLayout Spacing="8" VerticalOptions="Center">
+                             <Label Text="Lancer un Scan" Style="{StaticResource HeadingLabel}" TextColor="White" FontSize="22" />
+                             <Label Text="Scanner un tag UHF RFID Zebra" Style="{StaticResource BodyLabel}" TextColor="#E2E8F0" />
                         </VerticalStackLayout>
-                        <Image Grid.Column="1" Source="scan_icon.png" WidthRequest="48" HeightRequest="48" />
+                        <!-- Example of replacing the missing icon with an emoji for now if image isn't great -->
+                        <Label Grid.Column="1" Text="📡" FontSize="40" VerticalOptions="Center" />
                     </Grid>
-                </Border>
+                </Frame>
 
-                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardAlt}" StrokeShape="RoundRectangle 15">
-                    <Border.GestureRecognizers>
+                <Frame Grid.Row="1" Grid.Column="0" Style="{StaticResource CardAlt}">
+                    <Frame.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoToReportAsyncCommand}" />
-                    </Border.GestureRecognizers>
-                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                        <Label Text="📑" FontSize="32" HorizontalTextAlignment="Center" />
-                        <Label Text="Rapports" Style="{StaticResource BodyLabel}" HorizontalTextAlignment="Center" />
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center" Padding="10">
+                        <Label Text="📊" FontSize="36" HorizontalTextAlignment="Center" />
+                        <Label Text="Rapports" Style="{StaticResource HeadingLabel}" FontSize="16" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
-                </Border>
+                </Frame>
 
-                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardAlt}" IsVisible="{Binding IsAdmin}" StrokeShape="RoundRectangle 15">
-                    <Border.GestureRecognizers>
+                <Frame Grid.Row="1" Grid.Column="1" Style="{StaticResource CardAlt}" IsVisible="{Binding IsAdmin}">
+                    <Frame.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoToAdminAsyncCommand}" />
-                    </Border.GestureRecognizers>
-                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                        <Label Text="⚙️" FontSize="32" HorizontalTextAlignment="Center" />
-                        <Label Text="Admin" Style="{StaticResource BodyLabel}" HorizontalTextAlignment="Center" />
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center" Padding="10">
+                        <Label Text="⚙️" FontSize="36" HorizontalTextAlignment="Center" />
+                        <Label Text="Admin" Style="{StaticResource HeadingLabel}" FontSize="16" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
-                </Border>
+                </Frame>
             </Grid>
 
             <!-- Stats Grid -->
-            <Label Text="Statistiques Production" Style="{StaticResource HeadingLabel}" FontSize="16" />
-            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" RowDefinitions="Auto, Auto" RowSpacing="10">
-                <Border Style="{StaticResource CardAlt}" Padding="10" StrokeShape="RoundRectangle 10">
-                    <VerticalStackLayout>
-                        <Label Text="{Binding TotalMachines}" TextColor="White" FontSize="20" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+            <Label Text="Statistiques Production" Style="{StaticResource HeadingLabel}" FontSize="18" />
+            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="15" RowDefinitions="Auto" RowSpacing="15">
+                <Frame Style="{StaticResource CardAlt}" Padding="15,20">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="{Binding TotalMachines}" TextColor="{StaticResource TextPrimary}" FontSize="24" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
                         <Label Text="Total" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
-                </Border>
-                <Border Style="{StaticResource CardAlt}" Padding="10" StrokeShape="RoundRectangle 10">
-                    <VerticalStackLayout>
-                        <Label Text="{Binding InstalledCount}" TextColor="{StaticResource StatusInstalled}" FontSize="20" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                </Frame>
+                <Frame Style="{StaticResource CardAlt}" Padding="15,20">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="{Binding InstalledCount}" TextColor="{StaticResource StatusInstalled}" FontSize="24" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
                         <Label Text="Installés" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
-                </Border>
-                <Border Style="{StaticResource CardAlt}" Padding="10" StrokeShape="RoundRectangle 10">
-                    <VerticalStackLayout>
-                        <Label Text="{Binding MaintenanceCount}" TextColor="{StaticResource StatusMaintenance}" FontSize="20" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
-                        <Label Text="Maintenance" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                </Frame>
+                <Frame Style="{StaticResource CardAlt}" Padding="15,20">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="{Binding MaintenanceCount}" TextColor="{StaticResource StatusMaintenance}" FontSize="24" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="En Maint." Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
-                </Border>
+                </Frame>
             </Grid>
 
             <!-- Sync Section -->
-            <Border Style="{StaticResource CardAlt}" Padding="15" StrokeShape="RoundRectangle 10">
-                <Grid ColumnDefinitions="*, Auto">
-                    <VerticalStackLayout Spacing="2">
-                        <Label Text="État Synchronisation" Style="{StaticResource BodyLabel}" />
-                        <Label Text="{Binding SyncStatus}" TextColor="{StaticResource TextSecondary}" FontSize="12" />
+            <Frame Style="{StaticResource CardAlt}" Padding="20">
+                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <Label Text="État Synchronisation" Style="{StaticResource HeadingLabel}" FontSize="15" />
+                        <Label Text="{Binding SyncStatus}" TextColor="{StaticResource TextSecondary}" FontSize="13" />
                     </VerticalStackLayout>
                     <Button Grid.Column="1" Text="Synchroniser" Command="{Binding SyncNowCommand}" 
-                            HeightRequest="36" Padding="15,0" CornerRadius="8" FontSize="12" />
+                            Style="{StaticResource SecondaryButton}" HeightRequest="44" Padding="15,0" FontSize="13" />
                 </Grid>
-            </Border>
+            </Frame>
 
             <!-- Recent Activity -->
             <Label Text="Activités Récentes" Style="{StaticResource HeadingLabel}" FontSize="16" />
@@ -114,7 +126,7 @@
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:ScanEvent">
-                        <Border Style="{StaticResource CardAlt}" Margin="0,5" Padding="12" StrokeShape="RoundRectangle 10">
+                        <Frame Style="{StaticResource CardAlt}" Margin="0,5" Padding="12" CornerRadius="10">
                              <Grid ColumnDefinitions="Auto, *, Auto">
                                  <Label Text="{Binding EventIcon}" FontSize="24" VerticalOptions="Center" />
                                  <VerticalStackLayout Grid.Column="1" Margin="15,0" VerticalOptions="Center">
@@ -123,7 +135,7 @@
                                  </VerticalStackLayout>
                                  <Label Grid.Column="2" Text="{Binding TimestampDisplay}" FontSize="10" TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
                              </Grid>
-                        </Border>
+                        </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

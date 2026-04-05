@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
+             xmlns:models="clr-namespace:LeoniRFID.Models"
+             x:Class="LeoniRFID.Views.UserManagementPage"
+             x:DataType="vm:UserManagementViewModel"
+             Title="Gestion des utilisateurs">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,20" Spacing="20">
+
+            <!-- Titre + Bouton Ajouter -->
+            <Grid ColumnDefinitions="*, Auto">
+                <Label Text="Utilisateurs" 
+                       Style="{StaticResource HeadingLabel}" 
+                       FontSize="24" 
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1" 
+                        Text="+ Ajouter"
+                        Command="{Binding ToggleFormCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        HeightRequest="44"
+                        Padding="20,0" 
+                        FontSize="14" />
+            </Grid>
+
+            <!-- Messages -->
+            <Label Text="{Binding ErrorMessage}" 
+                   TextColor="{StaticResource StatusRemoved}" 
+                   FontAttributes="Bold"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource NotNullToVisible}}" />
+            <Label Text="{Binding SuccessMessage}" 
+                   TextColor="{StaticResource StatusInstalled}" 
+                   FontAttributes="Bold"
+                   IsVisible="{Binding SuccessMessage, Converter={StaticResource NotNullToVisible}}" />
+
+            <!-- ═══ Formulaire de Création ═══ -->
+            <Frame Style="{StaticResource Card}" 
+                   IsVisible="{Binding IsFormVisible}" 
+                   BackgroundColor="{StaticResource LeoniDarkBlue}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Nouveau Compte" 
+                           TextColor="White" 
+                           FontFamily="RobotoBold" 
+                           FontSize="18" />
+
+                    <Entry Placeholder="Nom complet (ex: Ahmed Ben Ali)"
+                           Text="{Binding NewUserName}"
+                           Style="{StaticResource ModernEntry}" />
+
+                    <Entry Placeholder="Email (ex: ahmed@leoni.com)"
+                           Keyboard="Email"
+                           Text="{Binding NewUserEmail}"
+                           Style="{StaticResource ModernEntry}" />
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Rôle :" TextColor="White" FontSize="14" />
+                        <Picker ItemsSource="{Binding AvailableRoles}"
+                                SelectedItem="{Binding SelectedRole}"
+                                BackgroundColor="{StaticResource InputBackground}"
+                                TextColor="{StaticResource TextPrimary}"
+                                FontSize="15"
+                                HeightRequest="50" />
+                    </VerticalStackLayout>
+
+                    <Button Text="CRÉER LE COMPTE"
+                            Command="{Binding CreateUserCommand}"
+                            Style="{StaticResource PrimaryButton}" />
+
+                    <Label Text="⚠️ Le technicien définira son propre mot de passe lors de sa première connexion."
+                           TextColor="#E2E8F0"
+                           FontSize="12"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 🎓 Pédagogie PFE : Le Composant CollectionView
+                 C'est le composant le plus performant pour afficher des listes. Il recycle 
+                 les cellules (scrolling fluide) et dessine la liste automatiquement 
+                 grâce à la propriété ItemsSource liée à l'ObservableCollection. -->
+            <!-- ═══ Liste des Utilisateurs ═══ -->
+            <CollectionView ItemsSource="{Binding Users}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="40" Spacing="10">
+                        <Label Text="👥" FontSize="48" HorizontalTextAlignment="Center" />
+                        <Label Text="Aucun utilisateur trouvé." 
+                               Style="{StaticResource SubHeadingLabel}" 
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Profile">
+                        <Frame Style="{StaticResource CardAlt}" Margin="0,6">
+                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
+
+                                <!-- Avatar -->
+                                <Frame WidthRequest="48" HeightRequest="48"
+                                       CornerRadius="24" Padding="0"
+                                       BackgroundColor="{StaticResource LeoniOrange}"
+                                       HasShadow="False" BorderColor="Transparent">
+                                    <Label Text="{Binding Initials}"
+                                           TextColor="White"
+                                           FontFamily="RobotoBold" FontSize="16"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
+                                </Frame>
+
+                                <!-- Infos -->
+                                <VerticalStackLayout Grid.Column="1" 
+                                                     VerticalOptions="Center" Spacing="3">
+                                    <Label Text="{Binding FullName}" 
+                                           FontFamily="RobotoBold" FontSize="15"
+                                           TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="{Binding RoleDisplay}" FontSize="13"
+                                           TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding StatusDisplay}" FontSize="12"
+                                           TextColor="{StaticResource TextMuted}" />
+                                </VerticalStackLayout>
+
+                                <!-- Actions -->
+                                <!-- 🎓 Pédagogie PFE : Binding avec RelativeSource
+                                     Dans DataTemplate, le contexte de données est "Profile", pas "UserManagementViewModel".
+                                     Pour cliquer sur un bouton qui déclenche une fonction du ViewModel, 
+                                     on doit remonter l'arbre (AncestorType) pour trouver la commande centrale ! -->
+                                <VerticalStackLayout Grid.Column="2" 
+                                                     VerticalOptions="Center" Spacing="8">
+                                    <Button Text="🔄 Rôle"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UserManagementViewModel}}, Path=ChangeRoleCommand}"
+                                            CommandParameter="{Binding .}"
+                                            FontSize="11" HeightRequest="32"
+                                            Padding="10,0" CornerRadius="16"
+                                            BackgroundColor="{StaticResource LeoniMidBlue}"
+                                            TextColor="White" />
+                                    <Button Text="⏸ Statut"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UserManagementViewModel}}, Path=ToggleUserStatusCommand}"
+                                            CommandParameter="{Binding .}"
+                                            FontSize="11" HeightRequest="32"
+                                            Padding="10,0" CornerRadius="16"
+                                            BackgroundColor="{StaticResource TextMuted}"
+                                            TextColor="White" />
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

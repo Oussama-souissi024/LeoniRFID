@@ -1,27 +1,24 @@
-using SQLite;
+using Postgrest.Attributes;
+using Postgrest.Models;
 
 namespace LeoniRFID.Models;
 
-[Table("Departments")]
-public class Department
+// 🎓 Pédagogie PFE : Modèle "Department" (Département d'usine)
+// Cette classe représente un département physique dans l'usine LEONI (ex: LTN1, LTN2, LTN3).
+// Chaque machine est rattachée à un département pour organiser le suivi RFID par zone.
+[Table("departments")]
+public class Department : BaseModel
 {
-    [PrimaryKey, AutoIncrement]
+
+    [PrimaryKey("id", false)]
     public int Id { get; set; }
 
-    [MaxLength(10), Unique, NotNull]
-    public string Code { get; set; } = string.Empty;        // LTN1 / LTN2 / LTN3
+    [Column("code")]
+    public string Code { get; set; } = string.Empty;
 
-    [MaxLength(100)]
+    [Column("name")]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(300)]
+    [Column("description")]
     public string? Description { get; set; }
-
-    [Ignore]
-    public static List<Department> DefaultDepartments =>
-    [
-        new() { Code = "LTN1", Name = "Atelier LTN1", Description = "Ligne de production 1" },
-        new() { Code = "LTN2", Name = "Atelier LTN2", Description = "Ligne de production 2" },
-        new() { Code = "LTN3", Name = "Atelier LTN3", Description = "Ligne de production 3" },
-    ];
 }

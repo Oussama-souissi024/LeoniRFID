@@ -4,6 +4,9 @@
              xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
              x:Class="LeoniRFID.Views.LoginPage"
              Shell.NavBarIsVisible="False"
+             <!-- 🎓 Pédagogie PFE : Le DataBinding Fortement Typé
+                  Déclarer x:DataType permet à Visual Studio de vérifier pendant la compilation 
+                  que les liaisons de données (Bindings) existent bien dans LoginViewModel. -->
              x:DataType="vm:LoginViewModel">
 
     <Grid RowDefinitions="*,Auto" Padding="30">
@@ -53,7 +56,13 @@
                            Margin="15,0" />
                 </Frame>
 
-                <Frame Style="{StaticResource CardAlt}" Padding="0">
+                <!-- 🎓 Pédagogie PFE : Les Convertisseurs (Converters)
+                     L'interface graphique ne sait pas faire de "NON Logique" (!IsFirstLogin).
+                     On utilise donc un Convertisseur (InverseBool) qui transforme True en False 
+                     (et inversement) pour cacher ce bloc quand on est en mode "Première connexion". -->
+                <!-- ══ Champs Mot de passe classique (caché si première connexion) ══ -->
+                <Frame Style="{StaticResource CardAlt}" Padding="0"
+                       IsVisible="{Binding IsFirstLogin, Converter={StaticResource InverseBool}}">
                     <Grid ColumnDefinitions="*,Auto">
                         <Entry Placeholder="Mot de passe"
                                IsPassword="{Binding IsPasswordVisible, Converter={StaticResource InverseBool}}"
@@ -70,19 +79,52 @@
                     </Grid>
                 </Frame>
 
+                <!-- ══ Bouton SE CONNECTER (caché si première connexion) ══ -->
                 <Button Text="SE CONNECTER"
                         Command="{Binding LoginCommand}"
                         Style="{StaticResource PrimaryButton}"
-                        Margin="0,10,0,0" />
-                
-                <Label Text="OU" 
-                       TextColor="{StaticResource TextMuted}"
-                       HorizontalTextAlignment="Center" />
+                        Margin="0,10,0,0"
+                        IsVisible="{Binding IsFirstLogin, Converter={StaticResource InverseBool}}" />
 
-                <Button Text="Connexion avec Google"
-                        Command="{Binding GoogleLoginCommand}"
-                        Style="{StaticResource SecondaryButton}"
-                        ImageSource="google_icon.png" />
+                <!-- ══ Première Connexion ══ -->
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" Margin="0,5">
+                    <CheckBox IsChecked="{Binding IsFirstLogin}" 
+                              Color="{StaticResource LeoniOrange}"
+                              IsEnabled="{Binding CanUseFirstLogin}" />
+                    <Label Text="C'est ma première connexion" 
+                           TextColor="{Binding FirstLoginTextColor}" 
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- ══ Message sous la case ══ -->
+                <Label Text="{Binding FirstLoginHint}"
+                       TextColor="{StaticResource LeoniOrange}"
+                       FontSize="12" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding FirstLoginHint, Converter={StaticResource NotNullToVisible}}" />
+
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding IsFirstLogin}">
+                    <Frame Style="{StaticResource CardAlt}" Padding="0">
+                        <Entry Placeholder="Nouveau mot de passe"
+                               IsPassword="True"
+                               Text="{Binding NewPassword}"
+                               Style="{StaticResource ModernEntry}"
+                               Margin="15,0" />
+                    </Frame>
+                    <Frame Style="{StaticResource CardAlt}" Padding="0">
+                        <Entry Placeholder="Confirmer le mot de passe"
+                               IsPassword="True"
+                               Text="{Binding ConfirmPassword}"
+                               Style="{StaticResource ModernEntry}"
+                               Margin="15,0" />
+                    </Frame>
+                    <Button Text="DÉFINIR MON MOT DE PASSE"
+                            Command="{Binding SetFirstPasswordCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            BackgroundColor="{StaticResource StatusInstalled}" />
+                </VerticalStackLayout>
+                
+
             </VerticalStackLayout>
 
             <!-- Error Message -->

@@ -6,20 +6,29 @@ using System.Collections.ObjectModel;
 
 namespace LeoniRFID.ViewModels;
 
+// 🎓 Pédagogie PFE : Module d'Administration
+// Ce ViewModel gère les opérations réservées aux administrateurs :
+// - Import de fichiers Excel contenant la liste des machines
+// - Génération de fichiers Excel de test (template)
+// - Suppression de machines
+// - Navigation vers les détails d'une machine
+// C'est un bon exemple de séparation des responsabilités : le ViewModel orchestre,
+// mais délègue le travail réel aux Services (SupabaseService, ExcelService).
 public partial class AdminViewModel : BaseViewModel
 {
-    private readonly DatabaseService _db;
+    private readonly SupabaseService _supabase;
     private readonly ExcelService    _excel;
 
-    public AdminViewModel(DatabaseService db, ExcelService excel)
+    public AdminViewModel(SupabaseService supabase, ExcelService excel)
     {
-        _db    = db;
+        _supabase = supabase;
         _excel = excel;
         Title  = "Administration";
     }
 
-    public ObservableCollection<Machine> Machines { get; } = [];
-    public ObservableCollection<User>    Users    { get; } = [];
+    // Initialiser les collections pour éviter les NullReferenceException côté UI
+    public ObservableCollection<Machine> Machines { get; } = new ObservableCollection<Machine>();
+    public ObservableCollection<Profile>  Users    { get; } = new ObservableCollection<Profile>();
 
     [ObservableProperty] private string _importStatus = string.Empty;
 
@@ -29,13 +38,13 @@ public partial class AdminViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var machines = await _db.GetAllMachinesAsync();
+            var machines = await _supabase.GetAllMachinesAsync();
             Machines.Clear();
             foreach (var m in machines) Machines.Add(m);
 
-            var users = await _db.GetAllUsersAsync();
+            var usersList = await _supabase.GetAllProfilesAsync();
             Users.Clear();
-            foreach (var u in users) Users.Add(u);
+            foreach (var u in usersList) Users.Add(u);
         }
         finally { IsBusy = false; }
     }
@@ -64,7 +73,7 @@ public partial class AdminViewModel : BaseViewModel
 
             if (imported.Count > 0)
             {
-                await _db.BulkInsertMachinesAsync(imported);
+                await _supabase.BulkInsertMachinesAsync(imported);
                 await LoadAsync();
                 await Shell.Current.DisplayAlert("Succès", $"{imported.Count} machines importées avec succès.", "OK");
             }
@@ -123,7 +132,7 @@ public partial class AdminViewModel : BaseViewModel
         bool confirm = await Shell.Current.DisplayAlert("Confirmer", $"Supprimer {machine.Name} ?", "Oui", "Non");
         if (!confirm) return;
 
-        await _db.DeleteMachineAsync(machine);
+        await _supabase.DeleteMachineAsync(machine);
         Machines.Remove(machine);
     }
 }

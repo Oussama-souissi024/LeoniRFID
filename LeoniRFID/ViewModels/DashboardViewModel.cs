@@ -6,44 +6,48 @@ using System.Collections.ObjectModel;
 
 namespace LeoniRFID.ViewModels;
 
+// 🎓 Pédagogie PFE : Le Tableau de Bord (Dashboard)
+// Ce ViewModel est le "cerveau" de la page d'accueil après connexion.
+// Il charge les statistiques en temps réel depuis Supabase (nombre de machines,
+// répartition par département, événements récents) et les expose à l'interface.
 public partial class DashboardViewModel : BaseViewModel
 {
-    private readonly DatabaseService _db;
-    private readonly AuthService     _auth;
-    private readonly SyncService     _sync;
+    private readonly SupabaseService _supabase;
 
-    public DashboardViewModel(DatabaseService db, AuthService auth, SyncService sync)
+    public DashboardViewModel(SupabaseService supabase)
     {
-        _db   = db;
-        _auth = auth;
-        _sync = sync;
-        Title = "Tableau de bord";
-        _sync.SyncStatusChanged += (_, msg) => SyncStatus = msg;
+        _supabase = supabase;
+        Title = "Tableau de Bord";
     }
 
-    // ── User info ─────────────────────────────────────────────────────────────
+    // ── Informations utilisateur connecté ──────────────────────────────────
     [ObservableProperty] private string _userName     = string.Empty;
     [ObservableProperty] private string _userRole     = string.Empty;
     [ObservableProperty] private string _userInitials = string.Empty;
     [ObservableProperty] private bool   _isAdmin      = false;
 
-    // ── Stats ─────────────────────────────────────────────────────────────────
+    // ── Statistiques globales ──────────────────────────────────────────────
+    // 🎓 Chaque propriété est automatiquement synchronisée avec l'interface XAML
+    // grâce à [ObservableProperty]. Quand on écrit "TotalMachines = 42",
+    // le label XAML qui affiche ce nombre se met à jour instantanément.
     [ObservableProperty] private int _totalMachines;
     [ObservableProperty] private int _installedCount;
     [ObservableProperty] private int _removedCount;
     [ObservableProperty] private int _maintenanceCount;
 
-    // ── Per-department stats ───────────────────────────────────────────────────
+    // ── Statistiques par département (LTN1, LTN2, LTN3) ──────────────────
     [ObservableProperty] private int _ltn1Count;
     [ObservableProperty] private int _ltn2Count;
     [ObservableProperty] private int _ltn3Count;
 
-    // ── Recent events ─────────────────────────────────────────────────────────
-    public ObservableCollection<ScanEvent> RecentEvents { get; } = [];
+    // ── Événements récents ────────────────────────────────────────────────
+    // 🎓 ObservableCollection notifie automatiquement le composant CollectionView
+    // du XAML à chaque ajout/suppression d'élément dans la liste.
+    public ObservableCollection<ScanEvent> RecentEvents { get; } = new ObservableCollection<ScanEvent>();
 
-    // ── Sync ──────────────────────────────────────────────────────────────────
-    [ObservableProperty] private string _syncStatus = string.Empty;
-    [ObservableProperty] private string _lastSyncTime = "Jamais";
+    // ── Statut de synchronisation (Cloud direct, pas de sync offline) ─────
+    [ObservableProperty] private string _syncStatus = "Cloud connecté";
+    [ObservableProperty] private string _lastSyncTime = "—";
 
     [RelayCommand]
     public async Task LoadAsync()
@@ -52,20 +56,14 @@ public partial class DashboardViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            await _db.InitAsync();
-
             // User
-            var user = _auth.CurrentUser;
-            if (user is not null)
-            {
-                UserName     = user.FullName;
-                UserRole     = user.RoleDisplay;
-                UserInitials = user.Initials;
-                IsAdmin      = user.IsAdmin;
-            }
+            IsAdmin = _supabase.IsAdmin;
+            UserName = _supabase.CurrentProfile?.FullName ?? "Utilisateur";
+            UserRole = _supabase.CurrentProfile?.RoleDisplay ?? "Inconnu";
+            UserInitials = _supabase.CurrentProfile?.Initials ?? "?";
 
             // Stats
-            var machines = await _db.GetAllMachinesAsync();
+            var machines = await _supabase.GetAllMachinesAsync();
             TotalMachines    = machines.Count;
             InstalledCount   = machines.Count(m => m.Status == "Installed");
             RemovedCount     = machines.Count(m => m.Status == "Removed");
@@ -75,9 +73,16 @@ public partial class DashboardViewModel : BaseViewModel
             Ltn3Count        = machines.Count(m => m.Department == "LTN3");
 
             // Recent events
-            var events = await _db.GetRecentEventsAsync(15);
+            var events = await _supabase.GetRecentEventsAsync(10);
             RecentEvents.Clear();
             foreach (var e in events) RecentEvents.Add(e);
+
+            SyncStatus = "✅ Données à jour";
+            LastSyncTime = DateTime.Now.ToString("HH:mm:ss");
+        }
+        catch (Exception ex)
+        {
+            SyncStatus = $"❌ Erreur : {ex.Message}";
         }
         finally { IsBusy = false; }
     }
@@ -85,9 +90,7 @@ public partial class DashboardViewModel : BaseViewModel
     [RelayCommand]
     private async Task SyncNowAsync()
     {
-        SyncStatus = "Synchronisation…";
-        await _sync.SyncAsync();
-        LastSyncTime = DateTime.Now.ToString("HH:mm:ss");
+        // En mode BaaS, un "Sync" revient simplement à recharger les données du cloud
         await LoadAsync();
     }
 
@@ -109,7 +112,7 @@ public partial class DashboardViewModel : BaseViewModel
         bool confirm = await Shell.Current.DisplayAlert(
             "Déconnexion", "Voulez-vous vous déconnecter ?", "Oui", "Non");
         if (!confirm) return;
-        _auth.Logout();
+        await _supabase.LogoutAsync();
         await Shell.Current.GoToAsync("//login");
     }
 }

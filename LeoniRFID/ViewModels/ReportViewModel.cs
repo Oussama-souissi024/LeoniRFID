@@ -6,14 +6,19 @@ using System.Collections.ObjectModel;
 
 namespace LeoniRFID.ViewModels;
 
+// 🎓 Pédagogie PFE : Module de Reporting (Rapports & Export)
+// Ce ViewModel permet de filtrer les machines par département et statut,
+// puis d'exporter les résultats sous forme de fichier Excel professionnel.
+// Il utilise LINQ (Language Integrated Query) pour filtrer les données en mémoire
+// côté client, ce qui évite des requêtes réseau inutiles.
 public partial class ReportViewModel : BaseViewModel
 {
-    private readonly DatabaseService _db;
+    private readonly SupabaseService _supabase;
     private readonly ExcelService    _excel;
 
-    public ReportViewModel(DatabaseService db, ExcelService excel)
+    public ReportViewModel(SupabaseService supabase, ExcelService excel)
     {
-        _db    = db;
+        _supabase = supabase;
         _excel = excel;
         Title  = "Rapports & Export";
         
@@ -38,12 +43,11 @@ public partial class ReportViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var all = await _db.GetAllMachinesAsync();
+            var allMachines = string.IsNullOrEmpty(SelectedDepartment) || SelectedDepartment == "Tous"
+                ? await _supabase.GetAllMachinesAsync()
+                : await _supabase.GetMachinesByDepartmentAsync(SelectedDepartment);
             
-            var query = all.AsEnumerable();
-
-            if (SelectedDepartment != "Tous")
-                query = query.Where(m => m.Department == SelectedDepartment);
+            var query = allMachines.AsEnumerable();
             
             if (SelectedStatus != "Tous")
                 query = query.Where(m => m.Status == SelectedStatus);
@@ -76,7 +80,7 @@ public partial class ReportViewModel : BaseViewModel
         try
         {
             // Get all events for these machines for a complete export
-            var allEvents = await _db.GetRecentEventsAsync(500);
+            var allEvents = await _supabase.GetRecentEventsAsync(500);
             
             var stream = _excel.ExportReport(FilteredMachines.ToList(), allEvents);
             

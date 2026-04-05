@@ -4,8 +4,12 @@ using Android.Content;
 namespace LeoniRFID.Platforms.Android;
 
 /// <summary>
-/// Receives intents from Zebra DataWedge for RFID scanning.
-/// Requires DataWedge profile to be configured with Intent Output.
+/// 🎓 Pédagogie PFE : Intégration Matérielle Native Android (BroadcastReceiver)
+/// Ce composant très spécifique à Android "écoute" les messages internes (Intents)
+/// du système d'exploitation. Quand le lecteur physique (Zebra) scanne un tag,
+/// l'appli système Zebra (DataWedge) diffuse un Intent. Ce code le capte
+/// pour récupérer le code EPC sans avoir besoin d'un SDK complexe.
+/// C'est une façon très élégante d'utiliser les capacités du terminal industriel.
 /// </summary>
 [BroadcastReceiver(Enabled = true, Exported = true)]
 [IntentFilterAttribute(new string[] { "com.symbol.datawedge.api.ACTION" }, Categories = new string[] { "android.intent.category.DEFAULT" })]
