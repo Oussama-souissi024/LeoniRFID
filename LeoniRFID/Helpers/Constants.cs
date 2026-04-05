@@ -2,9 +2,9 @@ namespace LeoniRFID.Helpers;
 
 public static class Constants
 {
-    // Commentaire pédagogique :
-    // - Centralise les constantes applicatives (URLs, clés, rôles, statuts).
-    // - Garder les constantes en un endroit facilite la maintenance et les tests.
+    // 🎓 Pédagogie PFE : Centraliser la configuration magique
+    // Au lieu d'avoir l'URL et les clés de la base de données dispersées dans 10 fichiers différents,
+    // on centralise tout ici. C'est l'essence même du développement propre (DRY : Don't Repeat Yourself).
 
     // ── Supabase (BaaS) : URL et clés publiques/privées
     public const string SupabaseUrl = "https://slxcwjgargafbvnitact.supabase.co";

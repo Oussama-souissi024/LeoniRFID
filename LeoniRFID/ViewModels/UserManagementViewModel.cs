@@ -17,6 +17,10 @@ public partial class UserManagementViewModel : BaseViewModel
     }
 
     // ── Liste des utilisateurs ──
+    // 🎓 Pédagogie PFE : ObservableCollection vs List
+    // Une `List<Profile>` classique ne prévient pas l'interface quand on y ajoute un élément.
+    // Une `ObservableCollection` demande au XAML de redessiner la liste automatiquement 
+    // à chaque ajout (`Add`) ou suppression (`Remove`), idéal pour une ListView ou CollectionView.
     public ObservableCollection<Profile> Users { get; } = new();
 
     // ── Formulaire de création ──

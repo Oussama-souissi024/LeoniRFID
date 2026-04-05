@@ -4,10 +4,10 @@ namespace LeoniRFID.Views;
 
 public partial class LoginPage : ContentPage
 {
-    // Commentaire pédagogique :
-    // - `LoginPage` est la vue XAML associée à `LoginViewModel`.
-    // - Le constructeur reçoit le ViewModel via l'injection de dépendances (DI) configurée dans `MauiProgram`.
-    // - `BindingContext` relie la vue aux propriétés/commandes du ViewModel.
+    // 🎓 Pédagogie PFE : Initialisation de l'Authentication
+    // La page de connexion est la route par défaut.
+    // L'injection de dépendances `(LoginViewModel viewModel)` fournit
+    // l'instance nécessaire pour que la vue puisse exécuter les commandes (LoginCommand).
     public LoginPage(LoginViewModel viewModel)
     {
         InitializeComponent();

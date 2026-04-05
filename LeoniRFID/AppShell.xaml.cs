@@ -15,12 +15,17 @@ public partial class AppShell : Shell
         try
         {
             // Initialise le XAML de la Shell (peut lancer une exception si un resource/contrôle est manquant)
-            // Commentaire pédagogique :
-            // - `InitializeComponent` charge `AppShell.xaml` et les contrôles/ressources utilisés par la Shell.
-            // - Une image ou un StaticResource manquant dans le XAML provoquera une exception ici.
+            // 🎓 Pédagogie PFE : Initialisation des composants graphiques
+            // `InitializeComponent` charge le fichier `AppShell.xaml` et construit l'interface.
+            // Attention : Si une image (comme une icône du menu) ou un style (StaticResource) 
+            // est manquant dans le XAML, c'est ici que l'application plantera (Exception).
             InitializeComponent();
 
-            // Register routes for pages not in Shell hierarchy
+            // 🎓 Pédagogie PFE : Routage Absolu vs Relatif
+            // Le `RegisterRoute` sert à enregistrer des pages qui ne sont PAS directement 
+            // déclarées dans le menu latéral (AppShell.xaml). Cela nous permet par exemple 
+            // de naviguer "à l'intérieur" d'une grappe (comme aller au détail d'une machine 
+            // depuis la page scanner) de façon dynamique.
             Routing.RegisterRoute("machinedetail", typeof(MachineDetailPage));
         }
         catch (Exception ex)
@@ -75,13 +80,21 @@ public partial class AppShell : Shell
         UpdateAdminVisibility();
     }
 
+    // 🎓 Pédagogie PFE : RBAC (Role-Based Access Control)
+    // Cette méthode gère dynamiquement la visibilité des onglets d'administration.
+    // Elle est appelée à chaque fois qu'on navigue `OnNavigated` car l'état de la session 
+    // peut changer. C'est une sécurité *front-end* qui accompagne la sécurité de la DB.
     private void UpdateAdminVisibility()
     {
+        // On récupère le SupabaseService manuellement via _services car AppShell n'utilise
+        // pas toujours l'injection de dépendances standard de façon directe.
         var supabase = _services.GetService<SupabaseService>();
         bool isAdmin = supabase?.IsAdmin ?? false;
 
         System.Diagnostics.Debug.WriteLine($"[SHELL] UpdateAdminVisibility → IsAdmin={isAdmin}, Profile={supabase?.CurrentProfile?.FullName ?? "null"}, Role={supabase?.CurrentProfile?.Role ?? "null"}");
         
+        // On utilise FlyoutItemIsVisible (pour cacher la ligne dans le menu) et 
+        // IsVisible (pour empêcher la navigation au niveau global du Shell).
         if (AdminFlyoutItem != null)
         {
             AdminFlyoutItem.FlyoutItemIsVisible = isAdmin;

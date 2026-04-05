@@ -6,9 +6,14 @@ using System.Collections.ObjectModel;
 
 namespace LeoniRFID.ViewModels;
 
-// Commentaire pédagogique :
-// - `AdminViewModel` gère les opérations réservées aux administrateurs (gestion des machines, import/export, utilisateurs).
-// - Séparer la logique métier (service) de la présentation (ViewModel) permet des tests unitaires et une maintenance plus facile.
+// 🎓 Pédagogie PFE : Module d'Administration
+// Ce ViewModel gère les opérations réservées aux administrateurs :
+// - Import de fichiers Excel contenant la liste des machines
+// - Génération de fichiers Excel de test (template)
+// - Suppression de machines
+// - Navigation vers les détails d'une machine
+// C'est un bon exemple de séparation des responsabilités : le ViewModel orchestre,
+// mais délègue le travail réel aux Services (SupabaseService, ExcelService).
 public partial class AdminViewModel : BaseViewModel
 {
     private readonly SupabaseService _supabase;

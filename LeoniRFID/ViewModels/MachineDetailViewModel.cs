@@ -6,6 +6,11 @@ using System.Collections.ObjectModel;
 
 namespace LeoniRFID.ViewModels;
 
+// 🎓 Pédagogie PFE : Navigation avec Paramètres (QueryProperty)
+// L'attribut [QueryProperty] permet de recevoir automatiquement un paramètre
+// depuis l'URL de navigation. Quand on navigue vers "machinedetail?machineId=5",
+// .NET MAUI remplit automatiquement la propriété MachineId avec la valeur 5.
+// C'est le même principe que les paramètres d'URL dans un navigateur web.
 [QueryProperty(nameof(MachineId), "machineId")]
 public partial class MachineDetailViewModel : BaseViewModel
 {

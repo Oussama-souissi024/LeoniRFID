@@ -38,6 +38,10 @@ public class SupabaseService
     public bool IsAuthenticated => _client.Auth.CurrentUser is not null;
     public bool IsAdmin => _currentProfile?.Role == Constants.RoleAdmin;
 
+    // Commentaire pédagogique :
+    // - `CurrentProfile` expose le profil chargé après authentification.
+    // - `IsAuthenticated` et `IsAdmin` sont des helpers utiles dans la vue pour afficher/masquer des éléments.
+
     public async Task<(bool Success, string Message)> LoginAsync(string email, string password)
     {
         try
@@ -309,10 +313,12 @@ public class SupabaseService
     }
 
     /// <summary>
-    /// Vérifie si un utilisateur doit encore définir son mot de passe.
-    /// Retourne true si must_change_password == true (case activée).
-    /// Retourne false si le mot de passe a déjà été défini (case grisée).
-    /// Retourne null si l'email n'existe pas.
+    /// 🎓 Pédagogie PFE : Bypass RLS (Row Level Security)
+    /// Vérifie si un utilisateur doit encore définir son mot de passe (Zero-Knowledge).
+    /// Pourquoi utiliser HttpClient et non l'API Supabase C# standard ?
+    /// Parce que l'utilisateur n'est pas encore connecté (!). La politique de sécurité (RLS) 
+    /// de la base de données bloque l'accès aux "Anonymes". On doit donc injecter manuellement
+    /// la clé "ServiceRoleKey" (Privilèges Max) dans l'en-tête HTTP pour contourner ce blocage.
     /// </summary>
     public async Task<bool?> CheckFirstLoginStatusAsync(string email)
     {
@@ -349,7 +355,9 @@ public class SupabaseService
 
             if (userId is null) return null;
 
-            // Lire le profil via l'API REST avec les droits Admin (bypass RLS)
+            // 🎓 Pédagogie PFE : Appel REST direct
+            // Appel manuel de l'API /rest/v1/profiles pour lire *seulement* la colonne
+            // must_change_password sans exposer tout le profil.
             var profileResponse = await httpClient.GetAsync(
                 $"{Constants.SupabaseUrl}/rest/v1/profiles?id=eq.{userId}&select=must_change_password");
 
@@ -374,11 +382,12 @@ public class SupabaseService
     }
 
     /// <summary>
-    /// Définit le mot de passe d'un technicien pour la première fois.
-    /// Utilise l'API Admin (service_role) pour :
-    /// 1. Trouver l'utilisateur par email
-    /// 2. Mettre à jour son mot de passe (hashé par Supabase)
-    /// 3. Passer must_change_password à false
+    /// 🎓 Pédagogie PFE : Principe du Zero-Knowledge Password
+    /// Définit le mot de passe d'un technicien pour la toute première fois.
+    /// Contrairement à une modification classique, c'est l'API d'Administration qui est 
+    /// invoquée. Le mot de passe voyage de l'Application vers Supabase, où il est 
+    /// immédiatement hashé de façon irréversible (bcrypt). Le booléen "must_change_password" 
+    /// est ensuite verrouillé à "false" pour empêcher toute autre modification future par ce biais.
     /// </summary>
     public async Task<(bool Success, string Message)> SetFirstPasswordViaAdminAsync(
         string email, string newPassword)

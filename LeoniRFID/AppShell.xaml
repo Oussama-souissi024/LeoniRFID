@@ -7,6 +7,13 @@
     Shell.FlyoutBehavior="Flyout"
     Title="LEONI RFID">
 
+    <!-- 🎓 Pédagogie PFE : AppShell (Le chef d'orchestre de la navigation)
+         La balise <Shell> définit la structure globale de l'application. 
+         Les <FlyoutItem> sont les onglets du menu latéral (Flyout).
+         L'attribut 'Route' ("dashboard", "scan"...) est indispensable pour naviguer
+         via le code C# : Shell.Current.GoToAsync("//dashboard").
+    -->
+
     <!-- ── Login (No Flyout) ─────────────────────────────────────────── -->
     <ShellContent
         Title="Connexion"

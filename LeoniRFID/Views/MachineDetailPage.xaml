@@ -7,6 +7,9 @@
              x:DataType="vm:MachineDetailViewModel"
              Title="Détails Machine">
 
+    <!-- 🎓 Pédagogie PFE : ScrollView
+         ScrollView permet de faire défiler le contenu verticalement (scroll) 
+         si l'écran du téléphone est trop petit pour tout afficher. -->
     <Grid RowDefinitions="*, Auto">
         
         <ScrollView Grid.Row="0">

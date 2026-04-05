@@ -7,9 +7,15 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace LeoniRFID.ViewModels;
 
+// 🎓 Pédagogie PFE : Le Pattern MVVM
+// `BaseViewModel` hérite de `ObservableObject` (fourni par CommunityToolkit.Mvvm).
+// Cela lui permet de notifier l'interface graphique (les fichiers XAML) à chaque fois
+// qu'une variable change dans le code, pour que l'écran se mette à jour tout seul.
 public partial class BaseViewModel : ObservableObject
 {
-    [ObservableProperty]
+    // 🎓 L'attribut [ObservableProperty] est magique : il transforme cette simple 
+    // variable privée `_isBusy` en une vraie propriété publique `IsBusy` avec
+    // tout le code nécessaire pour rafraichir l'écran quand sa valeur change.
     [NotifyPropertyChangedFor(nameof(IsNotBusy))]
     private bool _isBusy;
 

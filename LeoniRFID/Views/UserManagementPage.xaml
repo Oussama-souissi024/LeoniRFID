@@ -75,6 +75,10 @@
                 </VerticalStackLayout>
             </Frame>
 
+            <!-- 🎓 Pédagogie PFE : Le Composant CollectionView
+                 C'est le composant le plus performant pour afficher des listes. Il recycle 
+                 les cellules (scrolling fluide) et dessine la liste automatiquement 
+                 grâce à la propriété ItemsSource liée à l'ObservableCollection. -->
             <!-- ═══ Liste des Utilisateurs ═══ -->
             <CollectionView ItemsSource="{Binding Users}" SelectionMode="None">
                 <CollectionView.EmptyView>
@@ -116,6 +120,10 @@
                                 </VerticalStackLayout>
 
                                 <!-- Actions -->
+                                <!-- 🎓 Pédagogie PFE : Binding avec RelativeSource
+                                     Dans DataTemplate, le contexte de données est "Profile", pas "UserManagementViewModel".
+                                     Pour cliquer sur un bouton qui déclenche une fonction du ViewModel, 
+                                     on doit remonter l'arbre (AncestorType) pour trouver la commande centrale ! -->
                                 <VerticalStackLayout Grid.Column="2" 
                                                      VerticalOptions="Center" Spacing="8">
                                     <Button Text="🔄 Rôle"

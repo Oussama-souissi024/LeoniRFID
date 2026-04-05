@@ -6,6 +6,11 @@ using System.Collections.ObjectModel;
 
 namespace LeoniRFID.ViewModels;
 
+// 🎓 Pédagogie PFE : Module de Reporting (Rapports & Export)
+// Ce ViewModel permet de filtrer les machines par département et statut,
+// puis d'exporter les résultats sous forme de fichier Excel professionnel.
+// Il utilise LINQ (Language Integrated Query) pour filtrer les données en mémoire
+// côté client, ce qui évite des requêtes réseau inutiles.
 public partial class ReportViewModel : BaseViewModel
 {
     private readonly SupabaseService _supabase;

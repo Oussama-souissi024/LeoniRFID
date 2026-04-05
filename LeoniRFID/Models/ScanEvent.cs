@@ -3,6 +3,10 @@ using Postgrest.Models;
 
 namespace LeoniRFID.Models;
 
+// 🎓 Pédagogie PFE : Modèle "ScanEvent" (Événement de Scan RFID)
+// Chaque fois qu'un technicien passe un lecteur RFID devant une machine,
+// un "ScanEvent" est créé et enregistré dans Supabase. C'est le journal
+// de traçabilité complet qui permet de savoir QUI a scanné QUOI et QUAND.
 [Table("scan_events")]
 public class ScanEvent : BaseModel
 {
@@ -37,4 +41,7 @@ public class ScanEvent : BaseModel
 
     public string TimestampDisplay =>
         Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
+    // Commentaire pédagogique :
+    // - Les propriétés calculées comme `EventIcon` ou `TimestampDisplay` facilitent l'affichage dans les DataTemplates XAML.
+    // - Keep UI-friendly formatting in ViewModels/Models to avoid dupliquer la logique dans le XAML.
 }

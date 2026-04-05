@@ -2,10 +2,10 @@ namespace LeoniRFID;
 
 public partial class App : Application
 {
-    // Commentaire pédagogique :
-    // - `App` est la classe d'application globale. Son constructeur est appelé dès le démarrage de MAUI.
-    // - `InitializeComponent()` charge `App.xaml` et les dictionnaires de ressources (styles, couleurs, converters).
-    // - `CreateWindow` est utilisé sur les plateformes desktop pour créer la `Window` principale.
+    // 🎓 Pédagogie PFE : Le point de départ (Classe Globale App)
+    // C'est le tout premier code exécuté après le démarrage du processus MAUI.
+    // L'appel à `InitializeComponent()` charge `App.xaml` (qui consolide en mémoire 
+    // tous les dictionnaires de couleurs, de styles et les converters).
     private readonly IServiceProvider _serviceProvider;
 
     public App(IServiceProvider serviceProvider)

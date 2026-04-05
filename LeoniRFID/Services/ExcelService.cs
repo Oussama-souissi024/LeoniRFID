@@ -3,15 +3,18 @@ using LeoniRFID.Models;
 
 namespace LeoniRFID.Services;
 
+// 🎓 Pédagogie PFE : Service Utilitaire (Import/Export Excel)
+// Ce service utilise la librairie ClosedXML (gratuite, open-source) pour lire et
+// écrire des fichiers Excel (.xlsx). C'est typique d'une application industrielle
+// où les techniciens travaillent souvent avec des fichiers Excel pour l'inventaire.
 public class ExcelService
 {
-    // Commentaire pédagogique :
-    // - `ExcelService` centralise l'import/export Excel (ClosedXML).
-    // - Les services utilitaires doivent rester découplés des ViewModels pour réutilisabilité.
     // ── Import ────────────────────────────────────────────────────────────────
     /// <summary>
-    /// Parse a LEONI machine Excel file.
-    /// Expected columns: TagID | MachineName | Department | Status | InstallationDate
+    /// 🎓 Pédagogie PFE : Lecture de fichier Excel
+    /// Parse un fichier Excel fourni par LEONI contenant la liste des machines.
+    /// On lit ligne par ligne, on normalise les statuts ("installé" → "Installed")
+    /// et on crée des objets Machine prêts à être envoyés dans Supabase.
     /// </summary>
     public List<Machine> ImportMachines(Stream excelStream)
     {
@@ -70,6 +73,10 @@ public class ExcelService
     }
 
     // ── Export ────────────────────────────────────────────────────────────────
+    // 🎓 Pédagogie PFE : Génération de Rapport Excel
+    // Cette méthode crée un fichier Excel professionnel avec 2 onglets :
+    // 1. "Machines" : l'inventaire complet avec coloration automatique des statuts
+    // 2. "Événements RFID" : l'historique de tous les scans effectués
     public Stream ExportReport(List<Machine> machines, List<ScanEvent> events)
     {
         using var workbook = new XLWorkbook();

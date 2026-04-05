@@ -1,9 +1,11 @@
 namespace LeoniRFID.Services;
 
 /// <summary>
-/// RFID Service — reads EPC tags via Zebra DataWedge intent API.
-/// On physical Zebra MC3300x: DataWedge broadcasts an Android intent with EPC data.
-/// In development (non-Zebra): uses SimulateScan() for testing.
+/// 🎓 Pédagogie PFE : Intégration Matérielle (Hardware)
+/// Ce service fait le lien entre le lecteur RFID physique (Zebra MC3300x)
+/// et notre application .NET MAUI. Sur un vrai appareil Zebra, l'application
+/// DataWedge envoie un "Intent Android" contenant le code EPC du tag scanné.
+/// Sur un PC de développement (sans lecteur), on utilise SimulateScan().
 /// </summary>
 public class RfidService : IRfidService
 {
@@ -17,8 +19,12 @@ public class RfidService : IRfidService
     public void StartListening()
     {
         IsListening = true;
+        // 🎓 Pédagogie PFE : Compilation Conditionnelle (#if ANDROID)
+        // Le code entre #if ANDROID et #endif ne sera compilé QUE pour Android.
+        // Sur Windows ou iOS, ce bloc est totalement ignoré par le compilateur.
+        // C'est ainsi qu'on écrit du code multi-plateforme dans .NET MAUI.
 #if ANDROID
-        // DataWedgeIntentReceiver registered in MainActivity / Platforms/Android
+        // S'abonner aux scans physiques venant du lecteur Zebra
         LeoniRFID.Platforms.Android.DataWedgeIntentReceiver.TagReceived += OnTagReceived;
 #endif
     }

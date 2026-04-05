@@ -6,6 +6,11 @@
              x:DataType="vm:ScanViewModel"
              Title="Scanner RFID">
 
+    <!-- 🎓 Pédagogie PFE : Layout en Grille (Grid)
+         La page est découpée en 3 rangées :
+         Row 0 (Auto) = Barre de statut + saisie manuelle EPC
+         Row 1 (*)    = Zone centrale (animation de scan / résultat)
+         Row 2 (Auto) = Boutons d'action en bas (Installer / Retirer / Maintenance) -->
     <Grid RowDefinitions="Auto, *, Auto" Padding="20" RowSpacing="20">
 
         <!-- Top Status & Manual Entry -->
