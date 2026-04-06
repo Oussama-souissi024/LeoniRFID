@@ -1,3 +1,7 @@
+// 🎓 Pédagogie PFE : Le Point d'Entrée Android (MainActivity)
+// - `MainActivity` est la passerelle native entre le code de notre application et le cœur d'Android.
+// - L'attribut [Activity] permet de "configurer" Android sans utiliser de XML externe (manifeste),
+//   par exemple pour bloquer l'orientation de l'écran en Portrait (ScreenOrientation.Portrait).
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
@@ -10,8 +14,7 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
-        
-        // Ensure the app remains in Dark Mode as per LEONI requirements
+        // Exemple : forcer un thème à l'initialisation si nécessaire.
         // Microsoft.Maui.ApplicationModel.AppInfo.Current.RequestedTheme = Microsoft.Maui.ApplicationModel.AppTheme.Dark;
     }
 }

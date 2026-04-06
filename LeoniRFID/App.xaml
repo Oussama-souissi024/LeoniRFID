@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- 🎓 Pédagogie PFE : Dictionnaires de Ressources Globaux
+     `App.xaml` ne contient pas d'interface utilisateur (pas de boutons ou de layout).
+     Il stocke les "Ressources" communes pour l'ensemble du projet :
+     - Les couleurs spécifiques à LEONI pour garantir l'uniformité.
+     - Les styles modernes appliqués par défaut à toutes les pages (boutons, entrées).
+     Les balises MergedDictionaries injectent tous ces styles d'un seul coup au démarrage.
+-->
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LeoniRFID.App">

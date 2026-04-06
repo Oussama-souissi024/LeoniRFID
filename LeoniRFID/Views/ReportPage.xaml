@@ -9,6 +9,10 @@
 
     <Grid RowDefinitions="Auto, *">
         
+        <!-- 🎓 Pédagogie PFE : Formulaire de Filtre
+             Les Picker permettent de sélectionner des options.
+             Leurs ItemsSource sont liés aux listes 'Departments' et 'Statuses' du ViewModel.
+             SelectedItem récupère automatiquement le choix de l'utilisateur. -->
         <!-- Filters Header -->
         <Frame Grid.Row="0" Style="{StaticResource Card}" Margin="10" Padding="15">
             <VerticalStackLayout Spacing="15">

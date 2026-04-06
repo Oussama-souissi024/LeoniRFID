@@ -14,6 +14,10 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder();
 
+        // Commentaire pédagogique :
+        // - `MauiApp.CreateBuilder()` initialise le pipeline MAUI et la collection de services DI.
+        // - Ici nous enregistrons les services, ViewModels et Pages utilisés par l'application.
+        // - `UseMauiCommunityToolkit()` active les helpers du CommunityToolkit (animations, converters, behaviours).
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
@@ -26,12 +30,20 @@ public static class MauiProgram
                 fonts.AddFont("Roboto-Medium.ttf", "RobotoMedium");
             });
 
-        // ── Services ──────────────────────────────────────────────────────────
+        // ── Services (La Couche Logique & Accès aux données) ──────────────────
+        // 🎓 Pédagogie PFE : Pourquoi "AddSingleton" ?
+        // Un "Singleton" signifie que l'application ne créera qu'une seule instance de ce service 
+        // pendant toute sa durée de vie. C'est crucial pour SupabaseService car on veut 
+        // garder la même connexion à la base de données et la même session utilisateur partout.
         builder.Services.AddSingleton<SupabaseService>();
         builder.Services.AddSingleton<IRfidService, RfidService>();
         builder.Services.AddSingleton<ExcelService>();
 
-        // ── ViewModels ────────────────────────────────────────────────────────
+        // ── ViewModels (Le Cerveau Spécifique de chaque Page) ────────────────
+        // 🎓 Pédagogie PFE : Pourquoi "AddTransient" ?
+        // Un "Transient" signifie qu'à chaque fois qu'on a besoin de l'objet, l'application crée 
+        // une *nouvelle instance* vierge. Cela évite, par exemple, qu'un formulaire de saisie
+        // garde les anciennes données stockées en mémoire la prochaine fois qu'on ouvre la page.
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<DashboardViewModel>();
         builder.Services.AddTransient<ScanViewModel>();
@@ -40,7 +52,10 @@ public static class MauiProgram
         builder.Services.AddTransient<ReportViewModel>();
         builder.Services.AddTransient<UserManagementViewModel>();
 
-        // ── Pages ─────────────────────────────────────────────────────────────
+        // ── Pages (Les Vues Graphiques XAML) ──────────────────────────────────
+        // 🎓 Pédagogie PFE : Injection de Dépendances
+        // C'est ce mécanisme central (Dependency Injection) qui permet à MAUI de lier automatiquement
+        // `LoginPage` à `LoginViewModel` et à `SupabaseService` sans qu'on ait besoin de faire `new ...()`.
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<DashboardPage>();
         builder.Services.AddTransient<ScanPage>();

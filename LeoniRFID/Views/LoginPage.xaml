@@ -4,6 +4,9 @@
              xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
              x:Class="LeoniRFID.Views.LoginPage"
              Shell.NavBarIsVisible="False"
+             <!-- 🎓 Pédagogie PFE : Le DataBinding Fortement Typé
+                  Déclarer x:DataType permet à Visual Studio de vérifier pendant la compilation 
+                  que les liaisons de données (Bindings) existent bien dans LoginViewModel. -->
              x:DataType="vm:LoginViewModel">
 
     <Grid RowDefinitions="*,Auto" Padding="30">
@@ -53,6 +56,10 @@
                            Margin="15,0" />
                 </Frame>
 
+                <!-- 🎓 Pédagogie PFE : Les Convertisseurs (Converters)
+                     L'interface graphique ne sait pas faire de "NON Logique" (!IsFirstLogin).
+                     On utilise donc un Convertisseur (InverseBool) qui transforme True en False 
+                     (et inversement) pour cacher ce bloc quand on est en mode "Première connexion". -->
                 <!-- ══ Champs Mot de passe classique (caché si première connexion) ══ -->
                 <Frame Style="{StaticResource CardAlt}" Padding="0"
                        IsVisible="{Binding IsFirstLogin, Converter={StaticResource InverseBool}}">

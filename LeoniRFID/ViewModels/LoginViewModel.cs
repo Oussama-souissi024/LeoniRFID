@@ -1,3 +1,6 @@
+// Commentaire pédagogique :
+// - `LoginViewModel` contient la logique d'authentification et expose les commandes/états utilisés par la vue `LoginPage`.
+// - Les ViewModels doivent rester sans dépendances UI pour faciliter le test unitaire.
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LeoniRFID.Services;
@@ -15,6 +18,9 @@ public partial class LoginViewModel : BaseViewModel
         Title = "Connexion LEONI";
     }
 
+    // 🎓 Pédagogie PFE : Les Variables d'État (State)
+    // Grâce à [ObservableProperty], si `_email` change, l'interface graphique XAML
+    // qui "écoute" (Binding) la propriété publique `Email` changera instantanément.
     [ObservableProperty] private string _email    = string.Empty;
     [ObservableProperty] private string _password  = string.Empty;
     [ObservableProperty] private bool   _isPasswordVisible = false;
@@ -66,6 +72,9 @@ public partial class LoginViewModel : BaseViewModel
         }
     }
 
+    // 🎓 Pédagogie PFE : Les Commandes (Actions de l'utilisateur)
+    // L'attribut [RelayCommand] génère automatiquement une commande `LoginCommand`
+    // qu'on peut lier (Binding) au clic d'un bouton dans le fichier XAML `LoginPage.xaml`.
     [RelayCommand]
     private void TogglePasswordVisibility()
     {

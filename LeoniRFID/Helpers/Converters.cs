@@ -3,6 +3,10 @@ using System.Globalization;
 namespace LeoniRFID.Helpers;
 
 // ── Bool → Invert ─────────────────────────────────────────────────────────────
+// 🎓 Pédagogie PFE : Qu'est-ce qu'un Converter ?
+// En XAML, un "Binding" transfère une donnée du ViewModel vers l'interface.
+// Un Converter modifie cette donnée à la volée avant qu'elle ne soit affichée.
+// Ici `InverseBoolConverter` reçoit un booléen (ex: "true") et le transforme en son inverse ("false").
 public class InverseBoolConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -12,6 +16,9 @@ public class InverseBoolConverter : IValueConverter
 }
 
 // ── Bool → Visibility ─────────────────────────────────────────────────────────
+// 🎓 Pédagogie PFE : Afficher/Masquer intelligemment
+// Reçoit un booléen et le retourne tel quel. 
+// En réalité, MAUI gère la conversion implicite vers l'enum `Visibility` si c'est lié à "IsVisible" en XAML.
 public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -21,6 +28,9 @@ public class BoolToVisibilityConverter : IValueConverter
 }
 
 // ── Status → Color ────────────────────────────────────────────────────────────
+// 🎓 Pédagogie PFE : Converter de couleur (Design)
+// Prend le statut (qui est du texte, ex: "Installed") et retourne une couleur .NET MAUI.
+// Cela permet de colorer automatiquement le texte en XAML sans écrire de logique.
 public class StatusToColorConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -38,6 +48,8 @@ public class StatusToColorConverter : IValueConverter
 }
 
 // ── Status → Badge Background ─────────────────────────────────────────────────
+// 🎓 Pédagogie PFE : Fond de badge proportionnel
+// Similaire au Converter précédent, mais pour fournir une couleur de fond sombre adaptée.
 public class StatusToBadgeColorConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -55,6 +67,8 @@ public class StatusToBadgeColorConverter : IValueConverter
 }
 
 // ── DateTime → Formatted String ───────────────────────────────────────────────
+// 🎓 Pédagogie PFE : Centraliser le formatage
+// S'assure que *toutes* les dates de l'application s'affichent au format "Jour/Mois/Année Heure:Minute".
 public class DateTimeFormatConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -68,6 +82,8 @@ public class DateTimeFormatConverter : IValueConverter
 }
 
 // ── Null → Visibility ─────────────────────────────────────────────────────────
+// 🎓 Pédagogie PFE : Null ou Pas Null
+// Idéal pour cacher une section ou un message (ex: les "Notes") si le texte est vide ou null.
 public class NullToVisibleConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

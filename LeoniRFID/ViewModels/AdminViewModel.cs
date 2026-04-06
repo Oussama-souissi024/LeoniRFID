@@ -6,6 +6,14 @@ using System.Collections.ObjectModel;
 
 namespace LeoniRFID.ViewModels;
 
+// 🎓 Pédagogie PFE : Module d'Administration
+// Ce ViewModel gère les opérations réservées aux administrateurs :
+// - Import de fichiers Excel contenant la liste des machines
+// - Génération de fichiers Excel de test (template)
+// - Suppression de machines
+// - Navigation vers les détails d'une machine
+// C'est un bon exemple de séparation des responsabilités : le ViewModel orchestre,
+// mais délègue le travail réel aux Services (SupabaseService, ExcelService).
 public partial class AdminViewModel : BaseViewModel
 {
     private readonly SupabaseService _supabase;
@@ -18,8 +26,9 @@ public partial class AdminViewModel : BaseViewModel
         Title  = "Administration";
     }
 
-    public ObservableCollection<Machine> Machines { get; } = [];
-    public ObservableCollection<Profile>  Users    { get; } = [];
+    // Initialiser les collections pour éviter les NullReferenceException côté UI
+    public ObservableCollection<Machine> Machines { get; } = new ObservableCollection<Machine>();
+    public ObservableCollection<Profile>  Users    { get; } = new ObservableCollection<Profile>();
 
     [ObservableProperty] private string _importStatus = string.Empty;
 

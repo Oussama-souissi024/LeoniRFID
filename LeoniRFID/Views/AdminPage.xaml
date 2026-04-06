@@ -8,6 +8,10 @@
              x:Name="adminPage"
              Title="Administration Pro">
 
+    <!-- 🎓 Pédagogie PFE : Layout en Grille (Grid)
+         RowDefinitions="Auto, *" signifie que la première ligne (Header) 
+         prend exactement la hauteur de son contenu (Auto), 
+         et la deuxième ligne (CollectionView) prend TOUT l'espace restant (*). -->
     <Grid RowDefinitions="Auto, *">
         
         <!-- Header Actions -->
