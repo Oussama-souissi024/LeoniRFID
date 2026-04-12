@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
@@ -33,13 +34,27 @@ public class Profile : BaseModel
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // 🎓 Pédagogie PFE : Propriétés Calculées (Computed Properties)
-    // Ces propriétés n'ont pas l'attribut [Column], elles NE SONT DONC PAS sauvegardées 
-    // dans la base de données. Elles servent juste à formater l'affichage dans l'interface (XAML).
+    // [JsonIgnore] empêche Supabase (Newtonsoft.Json) d'essayer de les mapper
+    // comme des colonnes de la base de données lors des INSERT/UPDATE.
+    [JsonIgnore]
     public bool IsAdmin => Role == "Admin";
-    public string RoleDisplay => Role == "Admin" ? "👑 Administrateur" : "🔧 Technicien";
+
+    [JsonIgnore]
+    public bool IsMaintenance => Role == "Maintenance";
+
+    [JsonIgnore]
+    public string RoleDisplay => Role switch
+    {
+        "Admin"       => "👑 Administrateur",
+        "Maintenance" => "🔧 Agent Maintenance",
+        _             => "👷 Technicien"
+    };
+
+    [JsonIgnore]
     public string StatusDisplay => IsActive ? "✅ Actif" : "❌ Désactivé";
     
     // Génère les 2 initiales (ex: "Ahmed Ali" -> "AA")
+    [JsonIgnore]
     public string Initials =>
         string.Join("", FullName.Split(' ')
             .Where(w => w.Length > 0)

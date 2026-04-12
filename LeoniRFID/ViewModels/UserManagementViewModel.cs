@@ -27,10 +27,12 @@ public partial class UserManagementViewModel : BaseViewModel
     [ObservableProperty] private string _newUserName = string.Empty;
     [ObservableProperty] private string _newUserEmail = string.Empty;
     [ObservableProperty] private string _selectedRole = "Technician";
+    [ObservableProperty] private int _selectedRoleIndex = 0;
     [ObservableProperty] private bool _isFormVisible = false;
 
     // ── Rôles disponibles ──
-    public List<string> AvailableRoles { get; } = new() { "Technician", "Admin" };
+    public List<string> AvailableRoles { get; } = new() { "Technician", "Maintenance", "Admin" };
+    public List<string> AvailableRolesDisplay { get; } = new() { "👷 Technicien", "🔧 Agent Maintenance", "👑 Administrateur" };
 
     [RelayCommand]
     private async Task LoadUsersAsync()
@@ -64,7 +66,7 @@ public partial class UserManagementViewModel : BaseViewModel
         {
             NewUserName = string.Empty;
             NewUserEmail = string.Empty;
-            SelectedRole = "Technician";
+            SelectedRoleIndex = 0;
         }
     }
 
@@ -83,17 +85,20 @@ public partial class UserManagementViewModel : BaseViewModel
         IsBusy = true;
         try
         {
+            // Mapper l'index du Picker au rôle technique
+            var role = AvailableRoles[SelectedRoleIndex];
+
             var (success, message) = await _supabase.CreateUserAsync(
                 NewUserEmail.Trim().ToLower(),
                 NewUserName.Trim(),
-                SelectedRole);
+                role);
 
             if (success)
             {
                 SetSuccess(message);
                 NewUserName = string.Empty;
                 NewUserEmail = string.Empty;
-                SelectedRole = "Technician";
+                SelectedRoleIndex = 0;
                 IsFormVisible = false;
                 await LoadUsersAsync();
             }
@@ -133,14 +138,21 @@ public partial class UserManagementViewModel : BaseViewModel
     [RelayCommand]
     private async Task ChangeRoleAsync(Profile user)
     {
-        var newRole = user.Role == "Admin" ? "Technician" : "Admin";
-        
-        bool confirm = await Shell.Current.DisplayAlert(
-            "Changer le rôle",
-            $"Passer {user.FullName} en « {newRole} » ?",
-            "Oui", "Non");
+        // Proposer les 3 rôles possibles
+        string action = await Shell.Current.DisplayActionSheet(
+            $"Changer le rôle de {user.FullName}",
+            "Annuler", null,
+            "👷 Technicien", "🔧 Agent Maintenance", "👑 Administrateur");
 
-        if (!confirm) return;
+        string? newRole = action switch
+        {
+            "👷 Technicien"        => "Technician",
+            "🔧 Agent Maintenance" => "Maintenance",
+            "👑 Administrateur"    => "Admin",
+            _ => null
+        };
+
+        if (newRole is null || newRole == user.Role) return;
 
         IsBusy = true;
         var (success, message) = await _supabase.UpdateUserRoleAsync(user.Id, newRole);

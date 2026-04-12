@@ -16,6 +16,7 @@ public partial class BaseViewModel : ObservableObject
     // 🎓 L'attribut [ObservableProperty] est magique : il transforme cette simple 
     // variable privée `_isBusy` en une vraie propriété publique `IsBusy` avec
     // tout le code nécessaire pour rafraichir l'écran quand sa valeur change.
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotBusy))]
     private bool _isBusy;
 

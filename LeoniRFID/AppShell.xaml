@@ -35,10 +35,23 @@
             Route="scan" />
     </FlyoutItem>
 
+    <FlyoutItem Title="Liste des Machines" Icon="admin_icon.png">
+        <ShellContent 
+            ContentTemplate="{DataTemplate views:MachineListPage}" 
+            Route="machinelist" />
+    </FlyoutItem>
+
     <FlyoutItem Title="Rapports" Icon="report_icon.png">
         <ShellContent 
             ContentTemplate="{DataTemplate views:ReportPage}" 
             Route="report" />
+    </FlyoutItem>
+
+    <!-- Maintenance Only (Managed in code-behind) -->
+    <FlyoutItem x:Name="MaintenanceFlyoutItem" Title="🔧 Maintenance" Icon="scan_icon.png">
+        <ShellContent 
+            ContentTemplate="{DataTemplate views:MaintenancePage}" 
+            Route="maintenance" />
     </FlyoutItem>
 
     <!-- Admin Only (Managed in code-behind) -->

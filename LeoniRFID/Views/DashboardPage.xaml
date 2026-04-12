@@ -83,25 +83,43 @@
                 </Frame>
             </Grid>
 
-            <!-- Stats Grid -->
+            <!-- Stats Grid (Workflow Maintenance) -->
             <Label Text="Statistiques Production" Style="{StaticResource HeadingLabel}" FontSize="18" />
-            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="15" RowDefinitions="Auto" RowSpacing="15">
-                <Frame Style="{StaticResource CardAlt}" Padding="15,20">
+            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" RowDefinitions="Auto, Auto" RowSpacing="10">
+                <Frame Style="{StaticResource CardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="{Binding TotalMachines}" TextColor="{StaticResource TextPrimary}" FontSize="24" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
-                        <Label Text="Total" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding RunningCount}" TextColor="#27AE60" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="✅ En Marche" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
                 </Frame>
-                <Frame Style="{StaticResource CardAlt}" Padding="15,20">
+                <Frame Grid.Column="1" Style="{StaticResource CardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="{Binding InstalledCount}" TextColor="{StaticResource StatusInstalled}" FontSize="24" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
-                        <Label Text="Installés" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding BrokenCount}" TextColor="#E74C3C" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="🔴 En Panne" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
                 </Frame>
-                <Frame Style="{StaticResource CardAlt}" Padding="15,20">
+                <Frame Grid.Column="2" Style="{StaticResource CardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="{Binding MaintenanceCount}" TextColor="{StaticResource StatusMaintenance}" FontSize="24" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
-                        <Label Text="En Maint." Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding InMaintenanceCount}" TextColor="#F39C12" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="🔧 Maint." FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Row="1" Style="{StaticResource CardAlt}" Padding="10,15">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="{Binding PausedCount}" TextColor="#9B59B6" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="⏸️ En Pause" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Row="1" Grid.Column="1" Style="{StaticResource CardAlt}" Padding="10,15">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="{Binding RemovedCount}" TextColor="#95A5A6" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="❌ Retiré" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Row="1" Grid.Column="2" Style="{StaticResource CardAlt}" Padding="10,15">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="{Binding TotalMachines}" TextColor="{StaticResource TextPrimary}" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="📊 Total" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
                 </Frame>
             </Grid>
