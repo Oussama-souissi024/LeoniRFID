@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
@@ -31,17 +32,19 @@ public class ScanEvent : BaseModel
     [Column("notes")]
     public string? Notes { get; set; }
 
+    // 🎓 Propriétés calculées pour l'affichage XAML
+    // [JsonIgnore] empêche Supabase de les envoyer à la DB
+    [JsonIgnore]
     public string EventIcon => EventType switch
     {
         "Install"     => "📥",
         "Remove"      => "📤",
         "Maintenance" => "🔧",
+        "Registered"  => "🆕",
         _             => "📡",
     };
 
+    [JsonIgnore]
     public string TimestampDisplay =>
         Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
-    // Commentaire pédagogique :
-    // - Les propriétés calculées comme `EventIcon` ou `TimestampDisplay` facilitent l'affichage dans les DataTemplates XAML.
-    // - Keep UI-friendly formatting in ViewModels/Models to avoid dupliquer la logique dans le XAML.
 }

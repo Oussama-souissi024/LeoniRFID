@@ -14,13 +14,16 @@ public static class Constants
     public const string SupabaseServiceRoleKey = "sb_secret_HvoLXCNtXOM4AnNZZrlVug_26YWZHgo";
 
     // ── Rôles utilisateurs
-    public const string RoleAdmin      = "Admin";
-    public const string RoleTechnician = "Technician";
+    public const string RoleAdmin       = "Admin";
+    public const string RoleTechnician  = "Technician";
+    public const string RoleMaintenance = "Maintenance";
 
-    // ── Statuts Machine
-    public const string StatusInstalled   = "Installed";
-    public const string StatusRemoved     = "Removed";
-    public const string StatusMaintenance = "Maintenance";
+    // ── Statuts Machine (Workflow Maintenance)
+    public const string StatusRunning       = "Running";        // ✅ En marche
+    public const string StatusBroken        = "Broken";         // 🔴 En panne
+    public const string StatusInMaintenance = "InMaintenance";  // 🔧 Maintenance en cours
+    public const string StatusPaused        = "Paused";         // ⏸️ En pause (nouvelle machine)
+    public const string StatusRemoved       = "Removed";        // ❌ Retiré
 
     // ── Départements (exemple statique)
     public static readonly string[] Departments = new[] { "LTN1", "LTN2", "LTN3" };

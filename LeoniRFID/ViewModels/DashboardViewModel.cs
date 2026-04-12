@@ -27,13 +27,12 @@ public partial class DashboardViewModel : BaseViewModel
     [ObservableProperty] private bool   _isAdmin      = false;
 
     // ── Statistiques globales ──────────────────────────────────────────────
-    // 🎓 Chaque propriété est automatiquement synchronisée avec l'interface XAML
-    // grâce à [ObservableProperty]. Quand on écrit "TotalMachines = 42",
-    // le label XAML qui affiche ce nombre se met à jour instantanément.
     [ObservableProperty] private int _totalMachines;
-    [ObservableProperty] private int _installedCount;
+    [ObservableProperty] private int _runningCount;
+    [ObservableProperty] private int _brokenCount;
+    [ObservableProperty] private int _inMaintenanceCount;
+    [ObservableProperty] private int _pausedCount;
     [ObservableProperty] private int _removedCount;
-    [ObservableProperty] private int _maintenanceCount;
 
     // ── Statistiques par département (LTN1, LTN2, LTN3) ──────────────────
     [ObservableProperty] private int _ltn1Count;
@@ -41,11 +40,9 @@ public partial class DashboardViewModel : BaseViewModel
     [ObservableProperty] private int _ltn3Count;
 
     // ── Événements récents ────────────────────────────────────────────────
-    // 🎓 ObservableCollection notifie automatiquement le composant CollectionView
-    // du XAML à chaque ajout/suppression d'élément dans la liste.
     public ObservableCollection<ScanEvent> RecentEvents { get; } = new ObservableCollection<ScanEvent>();
 
-    // ── Statut de synchronisation (Cloud direct, pas de sync offline) ─────
+    // ── Statut de synchronisation ─────────────────────────────────────────
     [ObservableProperty] private string _syncStatus = "Cloud connecté";
     [ObservableProperty] private string _lastSyncTime = "—";
 
@@ -62,15 +59,17 @@ public partial class DashboardViewModel : BaseViewModel
             UserRole = _supabase.CurrentProfile?.RoleDisplay ?? "Inconnu";
             UserInitials = _supabase.CurrentProfile?.Initials ?? "?";
 
-            // Stats
+            // Stats avec les nouveaux statuts
             var machines = await _supabase.GetAllMachinesAsync();
-            TotalMachines    = machines.Count;
-            InstalledCount   = machines.Count(m => m.Status == "Installed");
-            RemovedCount     = machines.Count(m => m.Status == "Removed");
-            MaintenanceCount = machines.Count(m => m.Status == "Maintenance");
-            Ltn1Count        = machines.Count(m => m.Department == "LTN1");
-            Ltn2Count        = machines.Count(m => m.Department == "LTN2");
-            Ltn3Count        = machines.Count(m => m.Department == "LTN3");
+            TotalMachines      = machines.Count;
+            RunningCount       = machines.Count(m => m.Status == "Running");
+            BrokenCount        = machines.Count(m => m.Status == "Broken");
+            InMaintenanceCount = machines.Count(m => m.Status == "InMaintenance");
+            PausedCount        = machines.Count(m => m.Status == "Paused");
+            RemovedCount       = machines.Count(m => m.Status == "Removed");
+            Ltn1Count          = machines.Count(m => m.Department == "LTN1");
+            Ltn2Count          = machines.Count(m => m.Department == "LTN2");
+            Ltn3Count          = machines.Count(m => m.Department == "LTN3");
 
             // Recent events
             var events = await _supabase.GetRecentEventsAsync(10);

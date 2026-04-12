@@ -72,7 +72,7 @@
    ├─ 6 Pages XAML (UI)
    ├─ 6 ViewModels (MVVM Toolkit)
    ├─ 6 Services (Injection dépendances)
-   ├─ SQLite Database (Auto-initialisée)
+   ├─ Supabase Database (Connectée)
    ├─ 2 Utilisateurs de test
    └─ 0 erreurs de compilation
 
@@ -100,7 +100,7 @@
    [✅] Compilation           RÉUSSIE (0 erreurs)
    [✅] Code                  SANS FAUTES
    [✅] Services              CONFIGURÉS (6)
-   [✅] Database              PRÊTE (SQLite)
+   [✅] Database              PRÊTE (Supabase)
    [✅] UI                    COMPLÈTE (6 pages)
    [✅] Authentification      PRÊTE (2 users)
    [✅] Permissions           DÉCLARÉES

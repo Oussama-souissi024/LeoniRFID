@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
@@ -19,14 +20,12 @@ public class Machine : BaseModel
     public string Department { get; set; } = string.Empty;
 
     [Column("status")]
-    public string Status { get; set; } = "Installed";
+    public string Status { get; set; } = "Running";
 
     [Column("installation_date")]
     public DateTime InstallationDate { get; set; } = DateTime.Now;
 
     // 🎓 Pédagogie PFE : Nullable Types
-    // Le "DateTime?" et "string?" (avec le ?) indique que la valeur peut être NULL 
-    // dans la base de données (ex: une machine n'a pas encore de date de sortie).
     [Column("exit_date")]
     public DateTime? ExitDate { get; set; }
 
@@ -36,17 +35,21 @@ public class Machine : BaseModel
     [Column("last_updated")]
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 
-    // 🎓 Pédagogie PFE : Propriétés pour le Data Binding MVC/MVVM
-    // Ces propriétés transforment les données brutes (ex: "Installed") 
-    // en données visuelles (ex: "✅ Installé") pour le XAML.
+    // 🎓 Pédagogie PFE : Propriétés calculées pour l'affichage XAML
+    // [JsonIgnore] de Newtonsoft.Json empêche Supabase (qui utilise Newtonsoft)
+    // d'essayer d'insérer ces propriétés comme des colonnes DB.
+    [JsonIgnore]
     public string StatusDisplay => Status switch
     {
-        "Installed"   => "✅ Installé",
-        "Removed"     => "❌ Retiré",
-        "Maintenance" => "🔧 Maintenance",
-        _             => Status
+        "Running"       => "✅ En Marche",
+        "Broken"        => "🔴 En Panne",
+        "InMaintenance" => "🔧 Maintenance en cours",
+        "Paused"        => "⏸️ En Pause",
+        "Removed"       => "❌ Retiré",
+        _               => Status
     };
 
+    [JsonIgnore]
     public string InstallationDateDisplay =>
         InstallationDate != default
             ? InstallationDate.ToString("dd/MM/yyyy")

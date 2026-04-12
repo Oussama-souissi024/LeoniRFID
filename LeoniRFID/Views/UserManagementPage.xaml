@@ -56,8 +56,8 @@
 
                     <VerticalStackLayout Spacing="5">
                         <Label Text="Rôle :" TextColor="White" FontSize="14" />
-                        <Picker ItemsSource="{Binding AvailableRoles}"
-                                SelectedItem="{Binding SelectedRole}"
+                        <Picker ItemsSource="{Binding AvailableRolesDisplay}"
+                                SelectedIndex="{Binding SelectedRoleIndex}"
                                 BackgroundColor="{StaticResource InputBackground}"
                                 TextColor="{StaticResource TextPrimary}"
                                 FontSize="15"
