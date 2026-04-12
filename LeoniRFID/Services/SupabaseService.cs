@@ -37,6 +37,8 @@ public class SupabaseService
     public Profile? CurrentProfile => _currentProfile;
     public bool IsAuthenticated => _client.Auth.CurrentUser is not null;
     public bool IsAdmin => _currentProfile?.Role == Constants.RoleAdmin;
+    public bool IsMaintenance => _currentProfile?.Role == Constants.RoleMaintenance;
+    public bool IsTechnician => _currentProfile?.Role == Constants.RoleTechnician;
 
     // Commentaire pédagogique :
     // - `CurrentProfile` expose le profil chargé après authentification.
@@ -505,5 +507,67 @@ public class SupabaseService
         {
             return (false, $"Erreur : {ex.Message}");
         }
+    }
+    // ══════════════════════════════════════════════════════════════════════
+    //  MAINTENANCE SESSIONS (Workflow Maintenance)
+    // ══════════════════════════════════════════════════════════════════════
+
+    // 🎓 Pédagogie PFE : Démarrer une session de maintenance
+    // Crée un enregistrement dans maintenance_sessions avec started_at = maintenant.
+    // Le timer est calculé côté client en comparant DateTime.UtcNow - StartedAt.
+    public async Task<MaintenanceSession> StartMaintenanceAsync(int machineId, string? technicianId)
+    {
+        var session = new MaintenanceSession
+        {
+            MachineId = machineId,
+            TechnicianId = technicianId,
+            StartedAt = DateTime.UtcNow
+        };
+        var response = await _client.From<MaintenanceSession>().Insert(session);
+        return response.Models.First();
+    }
+
+    // 🎓 Pédagogie PFE : Terminer une session de maintenance
+    // Renseigne ended_at et calcule automatiquement la durée en minutes.
+    public async Task EndMaintenanceAsync(MaintenanceSession session)
+    {
+        session.EndedAt = DateTime.UtcNow;
+        session.DurationMinutes = (session.EndedAt.Value - session.StartedAt).TotalMinutes;
+        await _client.From<MaintenanceSession>().Update(session);
+    }
+
+    // 🎓 Pédagogie PFE : Rechercher une maintenance en cours
+    // Si ended_at IS NULL, la maintenance est encore active sur cette machine.
+    public async Task<MaintenanceSession?> GetActiveMaintenanceAsync(int machineId)
+    {
+        try
+        {
+            var response = await _client.From<MaintenanceSession>()
+                .Where(s => s.MachineId == machineId)
+                .Filter("ended_at", Postgrest.Constants.Operator.Is, "null")
+                .Single();
+            return response;
+        }
+        catch { return null; }
+    }
+
+    // 🎓 Pédagogie PFE : Historique des maintenances (pour les rapports)
+    public async Task<List<MaintenanceSession>> GetMaintenanceHistoryAsync(int? machineId = null)
+    {
+        Postgrest.Responses.ModeledResponse<MaintenanceSession> response;
+        if (machineId.HasValue)
+        {
+            response = await _client.From<MaintenanceSession>()
+                .Where(s => s.MachineId == machineId.Value)
+                .Order("started_at", Postgrest.Constants.Ordering.Descending)
+                .Get();
+        }
+        else
+        {
+            response = await _client.From<MaintenanceSession>()
+                .Order("started_at", Postgrest.Constants.Ordering.Descending)
+                .Get();
+        }
+        return response.Models.ToList();
     }
 }

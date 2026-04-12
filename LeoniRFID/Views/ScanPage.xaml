@@ -66,29 +66,77 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Not Found State -->
-            <VerticalStackLayout IsVisible="{Binding TagNotFound}" Spacing="15" VerticalOptions="Center">
-                <Label Text="⚠️" FontSize="64" HorizontalTextAlignment="Center" />
-                <Label Text="Tag non reconnu" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
-                <Label Text="Ce tag RFID n'est pas associé à une machine dans la base LEONI." 
-                       Style="{StaticResource BodyLabel}" HorizontalTextAlignment="Center" Opacity="0.7" />
-                <Button Text="Réessayer" Style="{StaticResource SecondaryButton}" Command="{Binding StartScanCommand}" WidthRequest="200" HorizontalOptions="Center" />
-            </VerticalStackLayout>
+            <!-- 🎓 Tag inconnu → Formulaire d'enregistrement nouvelle machine -->
+            <Frame IsVisible="{Binding ShowRegisterForm}" Style="{StaticResource Card}" VerticalOptions="Center" Padding="20">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🆕 Nouvelle Machine" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding ScannedEpc, StringFormat='Tag EPC : {0}'}" 
+                           Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                    
+                    <BoxView Style="{StaticResource Divider}" />
+
+                    <!-- Nom de la machine -->
+                    <Label Text="Nom de la machine" Style="{StaticResource CaptionLabel}" />
+                    <Frame Style="{StaticResource CardAlt}" Padding="0" HeightRequest="50">
+                        <Entry Placeholder="Ex: Sertisseuse Auto K1" 
+                               Text="{Binding NewMachineName}" 
+                               Style="{StaticResource ModernEntry}" Margin="10,0" />
+                    </Frame>
+
+                    <!-- Département -->
+                    <Label Text="Département" Style="{StaticResource CaptionLabel}" />
+                    <Picker ItemsSource="{Binding DepartmentOptions}" 
+                            SelectedItem="{Binding SelectedDepartment}" />
+
+                    <!-- Boutons -->
+                    <Button Text="✅ ENREGISTRER LA MACHINE"
+                            Command="{Binding RegisterMachineCommand}"
+                            BackgroundColor="#27AE60" TextColor="White"
+                            HeightRequest="50" CornerRadius="10" FontAttributes="Bold" />
+                    <Button Text="Annuler" 
+                            Style="{StaticResource SecondaryButton}" 
+                            Command="{Binding StartScanCommand}" 
+                            HeightRequest="40" />
+                </VerticalStackLayout>
+            </Frame>
 
         </Grid>
 
-        <!-- Action Buttons (Visible only if machine found) -->
-        <Grid Grid.Row="2" ColumnDefinitions="*, *, *" ColumnSpacing="10" IsVisible="{Binding HasMachine}">
-            <Button Text="INSTALLER" 
-                    Command="{Binding SetStatusCommand}" CommandParameter="Installed"
-                    BackgroundColor="{StaticResource StatusInstalled}" HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
-            <Button Grid.Column="1" Text="RETIRER" 
-                    Command="{Binding SetStatusCommand}" CommandParameter="Removed"
-                    BackgroundColor="{StaticResource StatusRemoved}" HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
-            <Button Grid.Column="2" Text="MAINT." 
-                    Command="{Binding SetStatusCommand}" CommandParameter="Maintenance"
-                    BackgroundColor="{StaticResource StatusMaintenance}" HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
-        </Grid>
+        <!-- ═══ ZONE BASSE : Boutons Conditionnels selon le Rôle ═══ -->
+
+        <!-- 🎓 TECHNICIEN : Bouton "Signaler Panne" (visible si machine = Running) -->
+        <Button Grid.Row="2" 
+                Text="🔴 SIGNALER PANNE"
+                IsVisible="{Binding CanReportBroken}"
+                Command="{Binding ReportBrokenCommand}"
+                BackgroundColor="#E74C3C" TextColor="White"
+                HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
+
+        <!-- 🎓 AGENT MAINTENANCE : Bouton "Commencer Maintenance" (visible si machine = Broken) -->
+        <Button Grid.Row="2" 
+                Text="🔧 COMMENCER MAINTENANCE"
+                IsVisible="{Binding CanStartMaintenance}"
+                Command="{Binding StartMaintenanceCommand}"
+                BackgroundColor="#F39C12" TextColor="White"
+                HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
+
+        <!-- 🎓 AGENT MAINTENANCE : Timer + Bouton "Maintenance Terminée" (visible si machine = InMaintenance) -->
+        <VerticalStackLayout Grid.Row="2" IsVisible="{Binding CanEndMaintenance}" Spacing="10">
+            <!-- Timer en temps réel -->
+            <Frame BackgroundColor="#2C3E50" Padding="15" CornerRadius="10" HasShadow="False">
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
+                    <Label Text="⏱️" FontSize="28" VerticalOptions="Center" />
+                    <Label Text="{Binding MaintenanceTimer}" 
+                           FontSize="32" FontFamily="RobotoBold" TextColor="#F39C12"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Frame>
+            <!-- Bouton Terminer -->
+            <Button Text="✅ MAINTENANCE TERMINÉE"
+                    Command="{Binding EndMaintenanceCommand}"
+                    BackgroundColor="#27AE60" TextColor="White"
+                    HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
+        </VerticalStackLayout>
 
         <!-- Start/Stop Floating Button if not scanning and no machine -->
         <Button Grid.Row="2" Text="DÉMARRER SCAN RFID" 
