@@ -90,11 +90,19 @@ public partial class AppShell : Shell
         // pas toujours l'injection de dépendances standard de façon directe.
         var supabase = _services.GetService<SupabaseService>();
         bool isAdmin = supabase?.IsAdmin ?? false;
+        bool isMaintenance = supabase?.IsMaintenance ?? false;
 
-        System.Diagnostics.Debug.WriteLine($"[SHELL] UpdateAdminVisibility → IsAdmin={isAdmin}, Profile={supabase?.CurrentProfile?.FullName ?? "null"}, Role={supabase?.CurrentProfile?.Role ?? "null"}");
+        System.Diagnostics.Debug.WriteLine($"[SHELL] UpdateAdminVisibility → IsAdmin={isAdmin}, IsMaintenance={isMaintenance}, Profile={supabase?.CurrentProfile?.FullName ?? "null"}, Role={supabase?.CurrentProfile?.Role ?? "null"}");
         
-        // On utilise FlyoutItemIsVisible (pour cacher la ligne dans le menu) et 
-        // IsVisible (pour empêcher la navigation au niveau global du Shell).
+        // 🔧 Menu Maintenance : visible uniquement pour le rôle Maintenance (et Admin)
+        if (MaintenanceFlyoutItem != null)
+        {
+            bool showMaint = isMaintenance || isAdmin;
+            MaintenanceFlyoutItem.FlyoutItemIsVisible = showMaint;
+            MaintenanceFlyoutItem.IsVisible = showMaint;
+        }
+
+        // 👑 Menus Admin : visible uniquement pour le rôle Admin
         if (AdminFlyoutItem != null)
         {
             AdminFlyoutItem.FlyoutItemIsVisible = isAdmin;

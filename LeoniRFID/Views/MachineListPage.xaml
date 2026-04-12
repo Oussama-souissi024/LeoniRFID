@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
+             xmlns:models="clr-namespace:LeoniRFID.Models"
+             x:Class="LeoniRFID.Views.MachineListPage"
+             x:DataType="vm:MachineListViewModel"
+             Title="Liste des Machines">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Filtre par statut -->
+        <Frame Grid.Row="0" Style="{StaticResource Card}" Margin="10" Padding="15">
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                <Picker ItemsSource="{Binding FilterOptions}" 
+                        SelectedItem="{Binding SelectedFilter}" />
+                <Button Grid.Column="1" Text="🔍 Filtrer" 
+                        Command="{Binding LoadCommand}"
+                        Style="{StaticResource PrimaryButton}" 
+                        HeightRequest="44" Padding="20,0" />
+            </Grid>
+        </Frame>
+
+        <!-- Liste des machines -->
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Machines}" Margin="10,0">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" Spacing="10" Padding="40">
+                    <Label Text="📦" FontSize="48" HorizontalTextAlignment="Center" />
+                    <Label Text="Aucune machine trouvée" 
+                           Style="{StaticResource HeadingLabel}" 
+                           HorizontalTextAlignment="Center" FontSize="16" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Machine">
+                    <Frame Style="{StaticResource CardAlt}" Margin="0,5" Padding="15">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MachineListViewModel}}, Path=ViewDetailCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Frame.GestureRecognizers>
+                        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto" RowSpacing="3">
+                            <!-- Nom -->
+                            <Label Text="{Binding Name}" FontFamily="RobotoBold" FontSize="15" />
+                            <!-- Statut badge -->
+                            <Label Grid.Column="1" Text="{Binding StatusDisplay}" 
+                                   FontSize="12" FontFamily="RobotoBold" VerticalOptions="Center" />
+                            <!-- Département -->
+                            <Label Grid.Row="1" Text="{Binding Department}" 
+                                   FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                            <!-- Tag ID -->
+                            <Label Grid.Row="2" Grid.ColumnSpan="2" 
+                                   Text="{Binding TagId, StringFormat='🏷️ EPC: {0}'}" 
+                                   FontSize="10" TextColor="{StaticResource TextMuted}" />
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Loading -->
+        <Grid Grid.RowSpan="2" BackgroundColor="#AA000000" IsVisible="{Binding IsBusy}">
+            <ActivityIndicator IsRunning="True" VerticalOptions="Center" />
+        </Grid>
+    </Grid>
+</ContentPage>
