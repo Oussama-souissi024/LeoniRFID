@@ -8,6 +8,10 @@
              x:Class="LeoniRFID.Views.LoginPage"
              Shell.NavBarIsVisible="False"
              x:DataType="vm:LoginViewModel">
+             
+    <!-- 🎓 Pédagogie PFE : Le DataBinding Fortement Typé
+         Déclarer x:DataType permet à Visual Studio de vérifier pendant la compilation 
+         que les liaisons de données (Bindings) existent bien dans LoginViewModel. -->
 
     <Grid RowDefinitions="*,Auto" Padding="30">
         
