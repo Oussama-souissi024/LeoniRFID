@@ -6,12 +6,15 @@ public static class Constants
     // Au lieu d'avoir l'URL et les clés de la base de données dispersées dans 10 fichiers différents,
     // on centralise tout ici. C'est l'essence même du développement propre (DRY : Don't Repeat Yourself).
 
-    // ── Supabase (BaaS) : URL et clés publiques/privées
-    public const string SupabaseUrl = "https://slxcwjgargafbvnitact.supabase.co";
-    // Clé publique (anon) utilisée côté client. Ne pas confondre avec la clé de service (privée).
-    public const string SupabaseAnonKey = "sb_publishable_lfFMzw0_GEFREdU-X-J_Iw_kHven22Z";
-    // Clé de service (ne pas exposer côté client dans une app mobile publique).
-    public const string SupabaseServiceRoleKey = "sb_secret_HvoLXCNtXOM4AnNZZrlVug_26YWZHgo";
+    // ── Supabase LOCAL (Docker sur PC — IP LAN 192.168.1.122)
+    // 🎓 Pédagogie PFE : Pour la validation avec le Zebra MC3300x sur le réseau local de LEONI.
+    // Le Zebra doit être connecté au même réseau WiFi que ce PC.
+    // Pour repasser en Cloud : remplacer l'URL et les clés par celles de slxcwjgargafbvnitact.supabase.co
+    public const string SupabaseUrl = "http://192.168.1.122:8000";
+    // Clé publique (anon) — générée localement pour l'instance Docker
+    public const string SupabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NzY3MDY3MjUsImlzcyI6InN1cGFiYXNlIiwiZXhwIjoyMDkyMDY2NzI1LCJyb2xlIjoiYW5vbiJ9.9Ih9WSOMJxCeTSzYUmOTNYPcsm82suLqON5DeO0qgaI";
+    // Clé de service (service_role) — générée localement pour l'instance Docker
+    public const string SupabaseServiceRoleKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NzY3MDY3MjUsImlzcyI6InN1cGFiYXNlIiwiZXhwIjoyMDkyMDY2NzI1LCJyb2xlIjoic2VydmljZV9yb2xlIn0.IPwblUTo1d53u6Zo48EaOgGqlfxb6xHwyDunhMYVo5E";
 
     // ── Rôles utilisateurs
     public const string RoleAdmin       = "Admin";
