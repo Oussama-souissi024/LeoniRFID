@@ -22,6 +22,7 @@
 12. [Tester le flux complet](#étape-12--tester-le-flux-complet)
 13. [Dépannage](#-dépannage-problèmes-courants)
 14. [Revenir au Cloud](#-comment-revenir-à-supabase-cloud)
+15. [Scripts utilitaires](#-scripts-utilitaires)
 
 ---
 
@@ -738,6 +739,103 @@ Stop-Process -Id <PID_AFFICHÉ>
 
 **Solution** : Le mot de passe par défaut est **`LeoniAdmin2024`** (défini dans le `.env`).
 
+### Problème : Erreur `pg_toast_2618` — Corruption de la base PostgreSQL
+
+> **⚠️ C'est un bug connu de Docker Desktop + WSL2 sur Windows.**
+
+#### Symptômes
+
+Tu peux voir l'une de ces erreurs dans les logs Docker (`docker compose logs supabase-db`) :
+
+```
+index "pg_toast_2618_index" contains unexpected zero page at block X
+missing chunk number 1 for toast value XXXX in pg_toast_2618
+ERROR: could not read block from file "base/.../pg_toast_2618"
+```
+
+#### Explication
+
+| Couche | Ce qui se passe |
+|--------|----------------|
+| **Windows NTFS** | Système de fichiers hôte |
+| **ext4.vhdx** | Disque virtuel WSL2 stocké sur NTFS |
+| **ext4 (Linux)** | Filesystem dans la VM WSL2 |
+| **Docker** | Utilise ce filesystem pour les données |
+| **PostgreSQL** | Données stockées dans ce filesystem |
+
+Le bug : WSL2 stocke son filesystem dans un **disque virtuel dynamique** (`ext4.vhdx`) sur NTFS. Un bug connu de WSL2 ([microsoft/WSL#5895](https://github.com/microsoft/WSL/issues/5895)) provoque la **corruption du filesystem ext4** — des pages entières se retrouvent remplies de zéros. PostgreSQL détecte ces pages vides comme `unexpected zero page`.
+
+**Pourquoi `pg_toast_2618` en particulier ?**
+- `pg_toast_2618` est la table TOAST de `pg_description` (commentaires sur les objets de la base)
+- Les données TOAST sont découpées en *chunks* de ~2 Ko — si **une seule page** est corrompue, toute la chaîne est brisée
+- C'est la table la plus susceptible d'être touchée en premier
+
+#### Solution immédiate — Redémarrer Docker Desktop
+
+Le redémarrage agit à 3 niveaux :
+
+1. **`wsl --shutdown`** → Arrêt forcé de la VM WSL2 → le VHDX est démonté proprement
+2. **Redémarrage Docker** → WSL2 ré-initialise le disque virtuel dans un état cohérent
+3. **PostgreSQL startup** → **Crash recovery** automatique : replay du WAL (Write-Ahead Log) pour restaurer la cohérence
+
+```powershell
+# 1. Arrêter WSL2 proprement
+wsl --shutdown
+
+# 2. Attendre 3 secondes
+Start-Sleep -Seconds 3
+
+# 3. Relancer Docker Desktop
+Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+
+# 4. Attendre que Docker soit prêt (patiente ~30 secondes)
+do { Start-Sleep -Seconds 5 } until ((docker info 2>$null) -match "Server Version")
+
+# 5. Relancer Supabase
+cd C:\supabase-local\docker
+docker compose up -d
+```
+
+> [!NOTE]
+> Tu peux aussi utiliser le script automatisé `start-supabase.ps1` fourni dans le projet (voir ci-dessous).
+
+#### Solution permanente — Prévenir la corruption
+
+1. **Mettre à jour Windows** : Le bug de corruption ext4 est corrigé dans Windows 10 21H2+ et Windows 11 22H2+.
+   ```powershell
+   winver  # Vérifier ta version
+   ```
+
+2. **Toujours arrêter proprement** : Ne jamais fermer Docker Desktop brutalement. Toujours faire :
+   ```powershell
+   cd C:\supabase-local\docker
+   docker compose down       # Arrêter les conteneurs proprement
+   wsl --shutdown            # Arrêter WSL2 proprement
+   ```
+
+3. **Sauvegardes régulières** : Utiliser le script `backup-supabase.ps1` fourni dans le projet pour exporter les données régulièrement.
+
+4. **Vérifier l'intégrité** : Dans Supabase Studio → SQL Editor, exécuter périodiquement :
+   ```sql
+   -- Détecter les corruptions silencieuses (ne supprime rien, juste diagnostic)
+   SET zero_damaged_pages = on;
+   VACUUM FULL;
+   ```
+
+#### Si la corruption persiste après redémarrage
+
+Si le redémarrage ne suffit pas, il faut réinitialiser les données PostgreSQL :
+
+```powershell
+# ⚠️ ATTENTION : Cela supprime toutes les données ! Avoir une sauvegarde d'abord.
+
+cd C:\supabase-local\docker
+docker compose down -v          # Arrêter ET supprimer les volumes
+docker compose up -d            # Relancer avec des volumes vierges
+
+# Puis re-exécuter les étapes 6, 7, 8 et 9 du guide pour recréer les tables et données
+```
+
 ---
 
 ## 🔄 Comment revenir à Supabase Cloud
@@ -817,6 +915,38 @@ Avant la présentation devant LEONI, vérifie que **tous** ces points sont coch�
 - [ ] Le scan RFID enregistre les événements
 - [ ] Le workflow Maintenance fonctionne (Broken → InMaintenance → Running)
 - [ ] L'export Excel génère un fichier
+- [ ] Le script `start-supabase.ps1` démarre Supabase sans erreur
+- [ ] Le script `backup-supabase.ps1` crée une sauvegarde
+- [ ] Aucune erreur `pg_toast_2618` dans les logs Docker
+
+---
+
+## 🛠️ Scripts Utilitaires
+
+Le projet inclut 4 scripts PowerShell pour faciliter la gestion de Supabase Local :
+
+| Script | Rôle | Usage |
+|--------|------|-------|
+| `start-supabase.ps1` | Démarrage robuste (arrêt WSL2 propre + lancement) | `.\start-supabase.ps1` |
+| `stop-supabase.ps1` | Arrêt propre (conteneurs + WSL2) | `.\stop-supabase.ps1` |
+| `backup-supabase.ps1` | Sauvegarde complète de la base PostgreSQL | `.\backup-supabase.ps1` |
+| `restore-supabase.ps1` | Restauration d'une sauvegarde | `.\restore-supabase.ps1` ou `.\restore-supabase.ps1 -BackupFile ".\backups\leoni_backup_XXX.dump"` |
+
+### Workflow quotidien recommandé
+
+```powershell
+# Démarrage le matin
+.\start-supabase.ps1
+
+# Sauvegarde en fin de journée
+.\backup-supabase.ps1
+
+# Arrêt le soir (prévient la corruption pg_toast)
+.\stop-supabase.ps1
+```
+
+> [!IMPORTANT]
+> **Toujours utiliser `stop-supabase.ps1` ou `docker compose down` + `wsl --shutdown`** pour arrêter Supabase. Ne JAMAIS tuer Docker Desktop brutalement (risque de corruption `pg_toast`).
 
 ---
 
