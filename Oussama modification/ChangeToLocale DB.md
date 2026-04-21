@@ -836,6 +836,84 @@ docker compose up -d            # Relancer avec des volumes vierges
 # Puis re-exécuter les étapes 6, 7, 8 et 9 du guide pour recréer les tables et données
 ```
 
+### Problème : Erreur 504 / `failed SASL auth` — GoTrue ne peut pas se connecter à PostgreSQL
+
+> **⚠️ C'est le problème le plus fréquent après avoir modifié le `.env`.**
+
+#### Symptômes
+
+- L'authentification échoue avec une erreur **504 Gateway Timeout**
+- Les logs GoTrue montrent : `failed to connect to host=db user=supabase_auth_admin database=postgres: failed SASL auth`
+- Les conteneurs sont tous "Up/healthy" mais l'auth ne marche pas
+
+#### Cause
+
+Quand tu modifies `POSTGRES_PASSWORD` dans le `.env` **après** le premier `docker compose up`, les rôles PostgreSQL internes (`supabase_auth_admin`, `supabase_storage_admin`, etc.) gardent **l'ancien mot de passe**. GoTrue utilise le nouveau mot de passe du `.env` pour se connecter, mais PostgreSQL attend l'ancien → **SASL auth failed**.
+
+#### Solution rapide — Script de réparation
+
+```powershell
+.\fix-supabase-auth.ps1
+```
+
+Ce script :
+1. Arrête proprement tous les conteneurs + WSL2
+2. Redémarre Docker Desktop
+3. Lance uniquement la DB
+4. Corriger les mots de passe de **tous** les rôles PostgreSQL
+5. Lance les autres services
+6. Teste l'authentification `admin@leoni.com`
+
+#### Solution manuelle
+
+```powershell
+# 1. Arrêter les conteneurs
+cd C:\Users\oussa\supabase-local\docker
+docker compose down
+
+# 2. Relancer uniquement la DB
+docker compose up -d db
+
+# 3. Attendre que la DB soit healthy (patiente ~30s)
+# Vérifier : docker inspect supabase-db --format "{{.State.Health.Status}}"
+
+# 4. Corriger les mots de passe de TOUS les rôles
+# Remplace LeoniRFID2024Prod par TON mot de passe du .env
+$pwd = "LeoniRFID2024Prod"
+docker exec supabase-db psql -U supabase_admin -d postgres -c "ALTER USER supabase_auth_admin WITH PASSWORD '$pwd';"
+docker exec supabase-db psql -U supabase_admin -d postgres -c "ALTER USER supabase_storage_admin WITH PASSWORD '$pwd';"
+docker exec supabase-db psql -U supabase_admin -d postgres -c "ALTER USER supabase_functions_admin WITH PASSWORD '$pwd';"
+docker exec supabase-db psql -U supabase_admin -d postgres -c "ALTER USER supabase_admin WITH PASSWORD '$pwd';"
+docker exec supabase-db psql -U supabase_admin -d postgres -c "ALTER USER postgres WITH PASSWORD '$pwd';"
+docker exec supabase-db psql -U supabase_admin -d postgres -c "ALTER USER authenticator WITH PASSWORD '$pwd';"
+
+# 5. Lancer tous les autres services
+docker compose up -d
+```
+
+#### Solution nucléaire (si rien ne marche)
+
+Si la réparation des mots de passe ne suffit pas, il faut tout réinitialiser :
+
+```powershell
+# ⚠️ ATTENTION : Cela supprime TOUTES les données (tables, utilisateurs) !
+
+cd C:\Users\oussa\supabase-local\docker
+docker compose down -v          # Arrêter ET supprimer les volumes
+wsl --shutdown                  # Arrêter WSL2 proprement
+Start-Sleep -Seconds 5
+docker compose up -d            # Relancer avec le .env actuel (mots de passe cohérents)
+
+# Attendre que la DB soit healthy (~60s), puis recréer les tables et utilisateurs :
+docker cp init-schema.sql supabase-db:/tmp/init-schema.sql
+docker exec supabase-db psql -U supabase_admin -d postgres -f /tmp/init-schema.sql
+
+# Puis créer les utilisateurs (Étape 9 du guide)
+```
+
+> [!IMPORTANT]
+> **Pour éviter ce problème** : toujours exécuter `configure-supabase-env.ps1` **AVANT** le premier `docker compose up`. Ne jamais modifier `POSTGRES_PASSWORD` dans le `.env` après le premier démarrage sans corriger aussi les rôles PostgreSQL.
+
 ---
 
 ## 🔄 Comment revenir à Supabase Cloud
