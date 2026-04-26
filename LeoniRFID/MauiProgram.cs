@@ -50,9 +50,11 @@ public static class MauiProgram
         builder.Services.AddTransient<MachineDetailViewModel>();
         builder.Services.AddTransient<MachineListViewModel>();
         builder.Services.AddTransient<MaintenanceViewModel>();
+        builder.Services.AddTransient<MaintenanceSessionViewModel>();
         builder.Services.AddTransient<AdminViewModel>();
         builder.Services.AddTransient<ReportViewModel>();
         builder.Services.AddTransient<UserManagementViewModel>();
+        builder.Services.AddTransient<DepartmentViewModel>();
 
         // ── Pages (Les Vues Graphiques XAML) ──────────────────────────────────
         // 🎓 Pédagogie PFE : Injection de Dépendances
@@ -64,9 +66,11 @@ public static class MauiProgram
         builder.Services.AddTransient<MachineDetailPage>();
         builder.Services.AddTransient<MachineListPage>();
         builder.Services.AddTransient<MaintenancePage>();
+        builder.Services.AddTransient<MaintenanceSessionPage>();
         builder.Services.AddTransient<AdminPage>();
         builder.Services.AddTransient<ReportPage>();
         builder.Services.AddTransient<UserManagementPage>();
+        builder.Services.AddTransient<DepartmentPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

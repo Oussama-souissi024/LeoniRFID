@@ -54,16 +54,19 @@ public class SupabaseService
 
             _currentProfile = await GetProfileAsync(session.User.Id);
             if (_currentProfile is null)
-                return (false, "Profil utilisateur introuvable.");
+                return (false, "User profile not found.");
 
             if (!_currentProfile.IsActive)
-                return (false, "Compte désactivé. Contactez l'administrateur.");
+                return (false, "Account disabled. Contact your administrator.");
 
-            return (true, "Connexion réussie !");
+            // Refresh local data cache for offline mode
+            _ = DataCacheHelper.RefreshAsync(_client, Constants.SupabaseServiceRoleKey, Constants.SupabaseUrl);
+
+            return (true, "Login successful!");
         }
         catch (Exception ex)
         {
-            return (false, $"Erreur : {ex.Message}");
+            return (false, $"Error: {ex.Message}");
         }
     }
 
@@ -85,6 +88,7 @@ public class SupabaseService
         }
         catch { return false; }
     }
+
 
     // ══════════════════════════════════════════════════════════════════════
     //  PROFILES
@@ -114,21 +118,27 @@ public class SupabaseService
         return response.Models.ToList();
     }
 
-    public async Task<List<Machine>> GetMachinesByDepartmentAsync(string dept)
+    public async Task<List<Machine>> GetMachinesByPlantAsync(string plant)
     {
         var response = await _client.From<Machine>()
-            .Where(m => m.Department == dept)
+            .Where(m => m.Plant == plant)
             .Get();
         return response.Models.ToList();
     }
 
-    public async Task<Machine?> GetMachineByTagIdAsync(string tagId)
+    // Alias de compatibilité
+    public Task<List<Machine>> GetMachinesByDepartmentAsync(string dept) => GetMachinesByPlantAsync(dept);
+
+    public async Task<Machine?> GetMachineByTagReferenceAsync(string tagRef)
     {
         var response = await _client.From<Machine>()
-            .Where(m => m.TagId == tagId)
+            .Where(m => m.TagReference == tagRef)
             .Single();
         return response;
     }
+
+    // Alias de compatibilité
+    public Task<Machine?> GetMachineByTagIdAsync(string tagId) => GetMachineByTagReferenceAsync(tagId);
 
     public async Task<Machine?> GetMachineByIdAsync(int id)
     {
@@ -200,6 +210,21 @@ public class SupabaseService
         return response.Models.ToList();
     }
 
+    public async Task SaveDepartmentAsync(Department department)
+    {
+        if (department.Id == 0)
+            await _client.From<Department>().Insert(department);
+        else
+            await _client.From<Department>().Update(department);
+    }
+
+    public async Task DeleteDepartmentAsync(Department department)
+    {
+        await _client.From<Department>()
+            .Where(d => d.Id == department.Id)
+            .Delete();
+    }
+
     // ══════════════════════════════════════════════════════════════════════
     //  GESTION DES UTILISATEURS (Admin Only)
     // ══════════════════════════════════════════════════════════════════════
@@ -239,17 +264,17 @@ public class SupabaseService
 
             if (response.IsSuccessStatusCode)
             {
-                return (true, $"✅ Compte créé pour {email}");
+                return (true, $"✅ Account created for {email}");
             }
             else
             {
                 var errorBody = await response.Content.ReadAsStringAsync();
-                return (false, $"Erreur Supabase : {errorBody}");
+                return (false, $"Supabase error: {errorBody}");
             }
         }
         catch (Exception ex)
         {
-            return (false, $"Erreur : {ex.Message}");
+            return (false, $"Error: {ex.Message}");
         }
     }
 
@@ -277,15 +302,15 @@ public class SupabaseService
                 .Single();
 
             if (profile is null)
-                return (false, "Utilisateur introuvable.");
+                return (false, "User not found.");
 
             profile.Role = newRole;
             await _client.From<Profile>().Update(profile);
-            return (true, $"Rôle mis à jour : {newRole}");
+            return (true, $"Role updated: {newRole}");
         }
         catch (Exception ex)
         {
-            return (false, $"Erreur : {ex.Message}");
+            return (false, $"Error: {ex.Message}");
         }
     }
 
@@ -302,15 +327,51 @@ public class SupabaseService
                 .Single();
 
             if (profile is null)
-                return (false, "Utilisateur introuvable.");
+                return (false, "User not found.");
 
             profile.IsActive = isActive;
             await _client.From<Profile>().Update(profile);
-            return (true, isActive ? "✅ Compte activé" : "❌ Compte désactivé");
+            return (true, isActive ? "✅ Account activated" : "❌ Account disabled");
         }
         catch (Exception ex)
         {
-            return (false, $"Erreur : {ex.Message}");
+            return (false, $"Error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Deletes a user account: removes the profile from DB and the auth user from Supabase.
+    /// </summary>
+    public async Task<(bool Success, string Message)> DeleteUserAsync(string userId)
+    {
+        try
+        {
+            // 1. Delete profile from DB
+            await _client.From<Profile>()
+                .Where(p => p.Id == userId)
+                .Delete();
+
+            // 2. Delete auth user via Admin API
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("apikey", Constants.SupabaseServiceRoleKey);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue(
+                    "Bearer", Constants.SupabaseServiceRoleKey);
+
+            var response = await httpClient.DeleteAsync(
+                $"{Constants.SupabaseUrl}/auth/v1/admin/users/{userId}");
+
+            if (response.IsSuccessStatusCode)
+                return (true, "🗑️ Account deleted successfully.");
+            else
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                return (false, $"Profile removed but auth deletion failed: {errorBody}");
+            }
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Error: {ex.Message}");
         }
     }
 
@@ -529,10 +590,13 @@ public class SupabaseService
 
     // 🎓 Pédagogie PFE : Terminer une session de maintenance
     // Renseigne ended_at et calcule automatiquement la durée en minutes.
+    // ⚠️ Important : StartedAt revient de Supabase en heure locale, 
+    // il faut le convertir en UTC avant de calculer la durée.
     public async Task EndMaintenanceAsync(MaintenanceSession session)
     {
         session.EndedAt = DateTime.UtcNow;
-        session.DurationMinutes = (session.EndedAt.Value - session.StartedAt).TotalMinutes;
+        var startUtc = session.StartedAt.ToUniversalTime();
+        session.DurationMinutes = (session.EndedAt.Value - startUtc).TotalMinutes;
         await _client.From<MaintenanceSession>().Update(session);
     }
 

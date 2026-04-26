@@ -21,15 +21,25 @@ public static class Constants
     public const string RoleTechnician  = "Technician";
     public const string RoleMaintenance = "Maintenance";
 
-    // ── Statuts Machine (Workflow Maintenance)
-    public const string StatusRunning       = "Running";        // ✅ En marche
-    public const string StatusBroken        = "Broken";         // 🔴 En panne
-    public const string StatusInMaintenance = "InMaintenance";  // 🔧 Maintenance en cours
-    public const string StatusPaused        = "Paused";         // ⏸️ En pause (nouvelle machine)
-    public const string StatusRemoved       = "Removed";        // ❌ Retiré
+    // ── Statuts Équipement (Maquette LEONI réelle)
+    public const string StatusActive            = "Active";            // ✅ Active
+    public const string StatusPassive           = "Passive";           // ⏸️ Passive
+    public const string StatusDefect            = "Defect";            // 🔴 Defect
+    public const string StatusScrapped          = "Scrapped";          // ❌ Scrapped
+    public const string StatusTransferDone      = "TransferDone";      // 🔄 Transfer Done
+    public const string StatusTransferOngoing   = "TransferOngoing";   // 🔃 Transfer Ongoing
+    public const string StatusTransferAvailable = "TransferAvailable"; // 📦 Transfer Available
 
-    // ── Départements (exemple statique)
-    public static readonly string[] Departments = new[] { "LTN1", "LTN2", "LTN3" };
+    // Aliases de compatibilité pour le workflow de maintenance
+    public const string StatusRunning       = StatusActive;
+    public const string StatusBroken        = StatusDefect;
+    public const string StatusInMaintenance = "InMaintenance";  // 🔧 Maintenance en cours (workflow interne)
+    public const string StatusPaused        = StatusPassive;
+    public const string StatusRemoved       = StatusScrapped;
+
+    // ── Plants / Sites (Maquette LEONI réelle)
+    public static readonly string[] Plants = new[] { "MH", "SB", "MS", "MN", "LTN1", "LTN2", "LTN3" };
+    public static readonly string[] Departments = Plants; // Alias de compatibilité
 
     // ── Intégration Zebra DataWedge (intents)
     public const string DataWedgeAction     = "com.symbol.datawedge.api.ACTION";

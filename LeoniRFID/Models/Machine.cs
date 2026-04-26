@@ -10,24 +10,32 @@ public class Machine : BaseModel
     [PrimaryKey("id", false)]
     public int Id { get; set; }
 
-    [Column("tag_id")]
-    public string TagId { get; set; } = string.Empty;
+    [Column("tag_reference")]
+    public string TagReference { get; set; } = string.Empty;
 
-    [Column("name")]
-    public string Name { get; set; } = string.Empty;
+    [Column("standard_equipment_name")]
+    public string StandardEquipmentName { get; set; } = string.Empty;
 
-    [Column("department")]
-    public string Department { get; set; } = string.Empty;
+    [Column("plant")]
+    public string Plant { get; set; } = string.Empty;
 
-    [Column("status")]
-    public string Status { get; set; } = "Running";
+    [Column("area")]
+    public string Area { get; set; } = string.Empty;
 
-    [Column("installation_date")]
-    public DateTime InstallationDate { get; set; } = DateTime.Now;
+    [Column("serial_number")]
+    public string SerialNumber { get; set; } = string.Empty;
 
-    // 🎓 Pédagogie PFE : Nullable Types
-    [Column("exit_date")]
-    public DateTime? ExitDate { get; set; }
+    [Column("immobilisation_number")]
+    public string ImmobilisationNumber { get; set; } = string.Empty;
+
+    [Column("cao_number")]
+    public string? CaoNumber { get; set; }
+
+    [Column("year_of_construction")]
+    public int YearOfConstruction { get; set; }
+
+    [Column("equipment_status")]
+    public string EquipmentStatus { get; set; } = "Active";
 
     [Column("notes")]
     public string? Notes { get; set; }
@@ -35,23 +43,52 @@ public class Machine : BaseModel
     [Column("last_updated")]
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 
+    // 🎓 Pédagogie PFE : Propriété calculée — Âge dynamique
+    [JsonIgnore]
+    public int Age => DateTime.Now.Year - YearOfConstruction;
+
     // 🎓 Pédagogie PFE : Propriétés calculées pour l'affichage XAML
     // [JsonIgnore] de Newtonsoft.Json empêche Supabase (qui utilise Newtonsoft)
     // d'essayer d'insérer ces propriétés comme des colonnes DB.
     [JsonIgnore]
-    public string StatusDisplay => Status switch
+    public string StatusDisplay => EquipmentStatus switch
     {
-        "Running"       => "✅ En Marche",
-        "Broken"        => "🔴 En Panne",
-        "InMaintenance" => "🔧 Maintenance en cours",
-        "Paused"        => "⏸️ En Pause",
-        "Removed"       => "❌ Retiré",
-        _               => Status
+        "Active"            => "✅ Active",
+        "Passive"           => "⏸️ Passive",
+        "Defect"            => "🔴 Defect",
+        "Scrapped"          => "❌ Scrapped",
+        "TransferDone"      => "🔄 Transfer Done",
+        "TransferOngoing"   => "🔃 Transfer Ongoing",
+        "TransferAvailable" => "📦 Transfer Available",
+        _                   => EquipmentStatus
     };
 
     [JsonIgnore]
-    public string InstallationDateDisplay =>
-        InstallationDate != default
-            ? InstallationDate.ToString("dd/MM/yyyy")
+    public string YearDisplay =>
+        YearOfConstruction > 0
+            ? $"{YearOfConstruction} ({Age} ans)"
+            : "—";
+
+    // Aliases de compatibilité pour les ViewModels existants (ScanEvent utilise TagId)
+    [JsonIgnore]
+    public string Name => StandardEquipmentName;
+
+    [JsonIgnore]
+    public string Status
+    {
+        get => EquipmentStatus;
+        set => EquipmentStatus = value;
+    }
+
+    [JsonIgnore]
+    public string Department => Plant;
+
+    [JsonIgnore]
+    public string TagId => TagReference;
+
+    [JsonIgnore]
+    public string LastUpdatedDisplay =>
+        LastUpdated != default
+            ? LastUpdated.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
             : "—";
 }

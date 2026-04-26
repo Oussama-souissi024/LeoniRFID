@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# AI Agent files
+.agent/
+
+# Ignore constants containing local API keys
+LeoniRFID/Helpers/Constants.cs

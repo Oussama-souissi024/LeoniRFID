@@ -59,11 +59,11 @@ public class ExcelService
 
                 machines.Add(new Machine
                 {
-                    TagId            = tagId,
-                    Name             = name,
-                    Department       = dept,
-                    Status           = status,
-                    InstallationDate = installDate != default ? installDate : DateTime.Now
+                    TagReference            = tagId,
+                    StandardEquipmentName   = name,
+                    Plant                   = dept,
+                    EquipmentStatus         = status,
+                    YearOfConstruction      = installDate != default ? installDate.Year : DateTime.Now.Year
                 });
             }
             catch { /* Skip malformed rows */ }
@@ -85,29 +85,31 @@ public class ExcelService
         var ws1 = workbook.Worksheets.Add("Machines");
         ApplyHeaderStyle(ws1, new[]
         {
-            "Tag ID (EPC)", "Nom Machine", "Département",
-            "Statut", "Date Installation", "Date Retrait", "Notes"
+            "Tag Reference", "Equipment Name", "Plant",
+            "Status", "Year", "Age", "Serial Number", "Notes"
         });
 
         int row = 2;
         foreach (var m in machines)
         {
-            ws1.Cell(row, 1).Value = m.TagId;
-            ws1.Cell(row, 2).Value = m.Name;
-            ws1.Cell(row, 3).Value = m.Department;
-            ws1.Cell(row, 4).Value = m.Status;
-            ws1.Cell(row, 5).Value = m.InstallationDate.ToString("dd/MM/yyyy");
-            ws1.Cell(row, 6).Value = m.ExitDate?.ToString("dd/MM/yyyy") ?? "";
-            ws1.Cell(row, 7).Value = m.Notes ?? "";
+            ws1.Cell(row, 1).Value = m.TagReference;
+            ws1.Cell(row, 2).Value = m.StandardEquipmentName;
+            ws1.Cell(row, 3).Value = m.Plant;
+            ws1.Cell(row, 4).Value = m.EquipmentStatus;
+            ws1.Cell(row, 5).Value = m.YearOfConstruction;
+            ws1.Cell(row, 6).Value = m.Age;
+            ws1.Cell(row, 7).Value = m.SerialNumber;
+            ws1.Cell(row, 8).Value = m.Notes ?? "";
 
             // Colour status cell
             var statusCell = ws1.Cell(row, 4);
-            statusCell.Style.Fill.BackgroundColor = m.Status switch
+            statusCell.Style.Fill.BackgroundColor = m.EquipmentStatus switch
             {
-                "Installed"   => XLColor.FromHtml("#2ECC71"),
-                "Removed"     => XLColor.FromHtml("#E74C3C"),
-                "Maintenance" => XLColor.FromHtml("#F39C12"),
-                _             => XLColor.White
+                "Active"          => XLColor.FromHtml("#2ECC71"),
+                "Defect"          => XLColor.FromHtml("#E74C3C"),
+                "Passive"         => XLColor.FromHtml("#F39C12"),
+                "Scrapped"        => XLColor.FromHtml("#95A5A6"),
+                _                 => XLColor.FromHtml("#3498DB")
             };
             statusCell.Style.Font.FontColor = XLColor.White;
             statusCell.Style.Font.Bold = true;
@@ -151,7 +153,7 @@ public class ExcelService
         var ws = workbook.Worksheets.Add("Machines");
         ApplyHeaderStyle(ws, new[]
         {
-            "TagID", "MachineName", "Department", "Status", "InstallationDate"
+            "TagReference", "EquipmentName", "Plant", "Status", "Year"
         });
 
         var depts   = new[] { "LTN1", "LTN2", "LTN3" };

@@ -45,13 +45,13 @@ public class Profile : BaseModel
     [JsonIgnore]
     public string RoleDisplay => Role switch
     {
-        "Admin"       => "👑 Administrateur",
-        "Maintenance" => "🔧 Agent Maintenance",
-        _             => "👷 Technicien"
+        "Admin"       => "👑 Administrator",
+        "Maintenance" => "🔧 Maintenance Agent",
+        _             => "👷 Technician"
     };
 
     [JsonIgnore]
-    public string StatusDisplay => IsActive ? "✅ Actif" : "❌ Désactivé";
+    public string StatusDisplay => IsActive ? "✅ Active" : "❌ Disabled";
     
     // Génère les 2 initiales (ex: "Ahmed Ali" -> "AA")
     [JsonIgnore]
