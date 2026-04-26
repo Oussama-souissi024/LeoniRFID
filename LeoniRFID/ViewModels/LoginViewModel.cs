@@ -15,7 +15,7 @@ public partial class LoginViewModel : BaseViewModel
     public LoginViewModel(SupabaseService supabase)
     {
         _supabase = supabase;
-        Title = "Connexion LEONI";
+        Title = "LEONI Login";
     }
 
     // 🎓 Pédagogie PFE : Les Variables d'État (State)
@@ -61,7 +61,7 @@ public partial class LoginViewModel : BaseViewModel
             CanUseFirstLogin = false;
             IsFirstLogin = false;
             FirstLoginTextColor = Color.FromArgb("#666666");
-            FirstLoginHint = "🔒 Mot de passe déjà défini.";
+            FirstLoginHint = "🔒 Password already set.";
         }
         else
         {
@@ -88,8 +88,8 @@ public partial class LoginViewModel : BaseViewModel
         if (IsBusy) return;
         ClearMessages();
 
-        if (string.IsNullOrWhiteSpace(Email))    { SetError("Veuillez saisir votre email."); return; }
-        if (string.IsNullOrWhiteSpace(Password)) { SetError("Veuillez saisir votre mot de passe."); return; }
+        if (string.IsNullOrWhiteSpace(Email))    { SetError("Please enter your email."); return; }
+        if (string.IsNullOrWhiteSpace(Password)) { SetError("Please enter your password."); return; }
 
         IsBusy = true;
         try
@@ -99,7 +99,7 @@ public partial class LoginViewModel : BaseViewModel
 
             if (success)
             {
-                SetSuccess("Connexion réussie !");
+                SetSuccess("Login successful!");
                 await Task.Delay(300);
                 await Shell.Current.GoToAsync("//dashboard");
             }
@@ -112,7 +112,7 @@ public partial class LoginViewModel : BaseViewModel
         {
             // Log and show a friendly error instead of crashing the app
             System.Diagnostics.Debug.WriteLine($"[CRASH] LoginAsync: {ex}");
-            SetError($"Une erreur est survenue lors de la connexion : {ex.Message}");
+            SetError($"An error occurred during login: {ex.Message}");
         }
         finally
         {
@@ -133,13 +133,13 @@ public partial class LoginViewModel : BaseViewModel
         ClearMessages();
 
         if (string.IsNullOrWhiteSpace(Email))
-        { SetError("Veuillez saisir votre email."); return; }
+        { SetError("Please enter your email."); return; }
 
         if (string.IsNullOrWhiteSpace(NewPassword) || NewPassword.Length < 6)
-        { SetError("Le mot de passe doit contenir au moins 6 caractères."); return; }
+        { SetError("Password must be at least 6 characters."); return; }
 
         if (NewPassword != ConfirmPassword)
-        { SetError("Les mots de passe ne correspondent pas."); return; }
+        { SetError("Passwords do not match."); return; }
 
         IsBusy = true;
         try
@@ -153,7 +153,7 @@ public partial class LoginViewModel : BaseViewModel
                 SetSuccess(message);
                 IsFirstLogin = false;
                 CanUseFirstLogin = false;
-                FirstLoginHint = "🔒 Mot de passe déjà défini.";
+                FirstLoginHint = "🔒 Password already set.";
                 NewPassword = string.Empty;
                 ConfirmPassword = string.Empty;
             }
@@ -164,7 +164,7 @@ public partial class LoginViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            SetError($"Erreur : {ex.Message}");
+            SetError($"Error: {ex.Message}");
         }
         finally
         {

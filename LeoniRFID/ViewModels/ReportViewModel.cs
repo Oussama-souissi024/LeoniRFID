@@ -19,7 +19,7 @@ public partial class ReportViewModel : BaseViewModel
     {
         _supabase = supabase;
         _excel = excel;
-        Title  = "Rapports & Export";
+        Title  = "Reports & Export";
         
         StartDate = DateTime.Today.AddDays(-30);
         EndDate   = DateTime.Today;
@@ -28,11 +28,11 @@ public partial class ReportViewModel : BaseViewModel
     // ── Filtres ──────────────────────────────────────────────────────────
     [ObservableProperty] private DateTime _startDate;
     [ObservableProperty] private DateTime _endDate;
-    [ObservableProperty] private string?  _selectedDepartment = "Tous";
-    [ObservableProperty] private string?  _selectedStatus     = "Tous";
+    [ObservableProperty] private string?  _selectedPlant      = "All";
+    [ObservableProperty] private string?  _selectedStatus     = "All";
 
-    public List<string> Departments { get; } = ["Tous", "LTN1", "LTN2", "LTN3"];
-    public List<string> Statuses    { get; } = ["Tous", "Running", "Broken", "InMaintenance", "Removed"];
+    public List<string> Plants   { get; } = ["All", "MH", "SB", "MS", "MN", "LTN1", "LTN2", "LTN3"];
+    public List<string> Statuses { get; } = ["All", "Active", "Passive", "Defect", "Scrapped", "TransferDone", "TransferOngoing", "TransferAvailable"];
 
     // ── Résultats Machines ───────────────────────────────────────────────
     public ObservableCollection<Machine> FilteredMachines { get; } = [];
@@ -55,21 +55,21 @@ public partial class ReportViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var allMachines = string.IsNullOrEmpty(SelectedDepartment) || SelectedDepartment == "Tous"
+            var allMachines = string.IsNullOrEmpty(SelectedPlant) || SelectedPlant == "All"
                 ? await _supabase.GetAllMachinesAsync()
-                : await _supabase.GetMachinesByDepartmentAsync(SelectedDepartment);
+                : await _supabase.GetMachinesByPlantAsync(SelectedPlant);
             
             var query = allMachines.AsEnumerable();
             
-            if (SelectedStatus != "Tous")
-                query = query.Where(m => m.Status == SelectedStatus);
+            if (SelectedStatus != "All")
+                query = query.Where(m => m.EquipmentStatus == SelectedStatus);
 
             FilteredMachines.Clear();
-            foreach (var m in query.OrderBy(x => x.Name))
+            foreach (var m in query.OrderBy(x => x.StandardEquipmentName))
                 FilteredMachines.Add(m);
             
             if (FilteredMachines.Count == 0)
-                SetError("Aucun résultat pour ces filtres.");
+                SetError("No results for these filters.");
             else
                 ClearMessages();
         }
@@ -95,11 +95,11 @@ public partial class ReportViewModel : BaseViewModel
                 s.StartedAt.Date <= EndDate.Date).ToList();
 
             // 3. Si un département est sélectionné, filtrer les machines
-            if (SelectedDepartment != "Tous" && !string.IsNullOrEmpty(SelectedDepartment))
+            if (SelectedPlant != "All" && !string.IsNullOrEmpty(SelectedPlant))
             {
-                var deptMachines = await _supabase.GetMachinesByDepartmentAsync(SelectedDepartment);
-                var deptMachineIds = deptMachines.Select(m => m.Id).ToHashSet();
-                filtered = filtered.Where(s => deptMachineIds.Contains(s.MachineId)).ToList();
+                var plantMachines = await _supabase.GetMachinesByPlantAsync(SelectedPlant);
+                var plantMachineIds = plantMachines.Select(m => m.Id).ToHashSet();
+                filtered = filtered.Where(s => plantMachineIds.Contains(s.MachineId)).ToList();
             }
 
             // 4. Remplir la collection
@@ -125,7 +125,7 @@ public partial class ReportViewModel : BaseViewModel
             }
 
             if (MaintenanceSessions.Count == 0)
-                SetError("Aucune intervention de maintenance pour cette période.");
+                SetError("No maintenance interventions for this period.");
             else
                 ClearMessages();
         }
@@ -152,7 +152,7 @@ public partial class ReportViewModel : BaseViewModel
             
             var stream = _excel.ExportReport(FilteredMachines.ToList(), allEvents);
             
-            string fileName = $"Rapport_LEONI_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+            string fileName = $"LEONI_Report_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
             string filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
             
             using (var fileStream = File.Create(filePath))
@@ -162,13 +162,13 @@ public partial class ReportViewModel : BaseViewModel
 
             await Share.Default.RequestAsync(new ShareFileRequest
             {
-                Title = "Export Rapport LEONI",
+                Title = "Export LEONI Report",
                 File  = new ShareFile(filePath)
             });
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Erreur Export", ex.Message, "OK");
+            await Shell.Current.DisplayAlert("Export Error", ex.Message, "OK");
         }
         finally { IsBusy = false; }
     }

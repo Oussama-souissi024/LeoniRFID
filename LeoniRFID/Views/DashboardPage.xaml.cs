@@ -20,6 +20,6 @@ public partial class DashboardPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadAsync();
+        await _viewModel.LoadDashboard();
     }
 }

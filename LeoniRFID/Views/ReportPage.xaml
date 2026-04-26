@@ -5,135 +5,163 @@
              xmlns:models="clr-namespace:LeoniRFID.Models"
              x:Class="LeoniRFID.Views.ReportPage"
              x:DataType="vm:ReportViewModel"
-             Title="Rapports d'activité">
+             Title="Activity Reports">
 
     <ScrollView>
-        <VerticalStackLayout Padding="10" Spacing="15">
+        <VerticalStackLayout Padding="16" Spacing="16">
 
             <!-- ═══ FILTRES ═══ -->
-            <Frame Style="{StaticResource Card}" Padding="15">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Filtres" Style="{StaticResource HeadingLabel}" FontSize="16" />
-                    <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
-                        <VerticalStackLayout Grid.Column="0">
-                            <Label Text="Département" Style="{StaticResource CaptionLabel}" />
-                            <Picker ItemsSource="{Binding Departments}" SelectedItem="{Binding SelectedDepartment}" />
+            <Border Style="{StaticResource BorderCard}" Padding="18">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🔍 Filters" Style="{StaticResource HeadingLabel}" FontSize="17" />
+
+                    <!-- Plant + Statut -->
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Department" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            <Picker ItemsSource="{Binding Plants}" SelectedItem="{Binding SelectedPlant}" />
                         </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1">
-                            <Label Text="Statut" Style="{StaticResource CaptionLabel}" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="3">
+                            <Label Text="Status" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                             <Picker ItemsSource="{Binding Statuses}" SelectedItem="{Binding SelectedStatus}" />
                         </VerticalStackLayout>
                     </Grid>
-                    <Grid ColumnDefinitions="*, *" ColumnSpacing="15">
-                        <VerticalStackLayout>
-                            <Label Text="Date début" Style="{StaticResource CaptionLabel}" />
+
+                    <!-- Dates -->
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Start date" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                             <DatePicker Date="{Binding StartDate}" />
                         </VerticalStackLayout>
-                        <VerticalStackLayout>
-                            <Label Text="Date fin" Style="{StaticResource CaptionLabel}" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="3">
+                            <Label Text="End date" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                             <DatePicker Date="{Binding EndDate}" />
                         </VerticalStackLayout>
                     </Grid>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- ═══ BOUTONS D'ACTION ═══ -->
             <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
-                <Button Text="📊 RAPPORT MACHINES" 
+                <Button Text="📊 Machines" 
                         Command="{Binding RunReportCommand}" 
-                        Style="{StaticResource PrimaryButton}" HeightRequest="44" />
-                <Button Grid.Column="1" Text="🔧 RAPPORT MAINTENANCE" 
+                        Style="{StaticResource PrimaryButton}" HeightRequest="48" FontSize="14" />
+                <Button Grid.Column="1" Text="🔧 Maintenance" 
                         Command="{Binding RunMaintenanceReportCommand}" 
                         BackgroundColor="#F39C12" TextColor="White"
-                        HeightRequest="44" CornerRadius="10" FontAttributes="Bold" />
+                        HeightRequest="48" CornerRadius="12" FontAttributes="Bold" FontSize="14" />
             </Grid>
 
-            <Button Text="📥 EXPORTER EN EXCEL (.xlsx)" 
+            <Button Text="📥 EXPORT TO EXCEL (.xlsx)" 
                     Command="{Binding ExportToExcelCommand}" 
                     Style="{StaticResource SecondaryButton}" HeightRequest="44" />
 
-            <!-- ═══ RÉSULTATS MACHINES ═══ -->
-            <CollectionView ItemsSource="{Binding FilteredMachines}">
-                <CollectionView.EmptyView>
-                    <Label Text="Utilisez les filtres pour afficher des données." 
-                           HorizontalTextAlignment="Center" Margin="50" 
-                           TextColor="{StaticResource TextMuted}" />
-                </CollectionView.EmptyView>
+            <!-- ═══ STATISTIQUES MAINTENANCE ═══ -->
+            <Border Style="{StaticResource BorderCard}" Padding="18"
+                    IsVisible="{Binding TotalInterventions, Converter={StaticResource IntToBool}}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="📊 Maintenance Statistics" Style="{StaticResource HeadingLabel}" FontSize="17" />
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                        <Border Style="{StaticResource BorderCardAlt}" Padding="12">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="{Binding TotalInterventions}" FontSize="24" FontFamily="RobotoBold" 
+                                       TextColor="#F39C12" HorizontalTextAlignment="Center" />
+                                <Label Text="Interventions" FontSize="9" HorizontalTextAlignment="Center" 
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource BorderCardAlt}" Padding="12">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="{Binding AverageDuration}" FontSize="16" FontFamily="RobotoBold" 
+                                       TextColor="#3498DB" HorizontalTextAlignment="Center" />
+                                <Label Text="Avg. Duration" FontSize="9" HorizontalTextAlignment="Center" 
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="2" Style="{StaticResource BorderCardAlt}" Padding="12">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="{Binding TotalDuration}" FontSize="16" FontFamily="RobotoBold" 
+                                       TextColor="#E74C3C" HorizontalTextAlignment="Center" />
+                                <Label Text="Total Duration" FontSize="9" HorizontalTextAlignment="Center" 
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ═══ LISTE MAINTENANCE ═══ -->
+            <CollectionView ItemsSource="{Binding MaintenanceSessions}">
+                <CollectionView.Header>
+                    <Label Text="🔧 Interventions" Style="{StaticResource HeadingLabel}" FontSize="16" Margin="0,0,0,5"
+                           IsVisible="{Binding TotalInterventions, Converter={StaticResource IntToBool}}" />
+                </CollectionView.Header>
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Machine">
-                        <Frame Style="{StaticResource CardAlt}" Margin="0,5" Padding="12">
-                             <Grid ColumnDefinitions="*, Auto">
-                                <VerticalStackLayout>
-                                    <Label Text="{Binding Name}" FontFamily="RobotoBold" FontSize="14" />
-                                    <Label Text="{Binding Department}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
-                                    <Label Text="{Binding TagId}" FontSize="10" TextColor="{StaticResource TextMuted}" />
+                    <DataTemplate x:DataType="models:MaintenanceSession">
+                        <Border Style="{StaticResource BorderCardAlt}" Margin="0,4" Padding="14">
+                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                                <!-- Icône -->
+                                <Border WidthRequest="42" HeightRequest="42"
+                                        StrokeShape="RoundRectangle 10" StrokeThickness="0"
+                                        Background="{StaticResource PrimaryGradient}" Padding="0">
+                                    <Label Text="🔧" FontSize="18"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <!-- Détails -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding StartedAtDisplay, StringFormat='Start: {0}'}" 
+                                           FontFamily="RobotoBold" FontSize="13" />
+                                    <Label Text="{Binding EndedAtDisplay, StringFormat='End: {0}'}" 
+                                           FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding MachineId, StringFormat='Machine #{0}'}" 
+                                           FontSize="10" TextColor="{StaticResource TextMuted}" />
                                 </VerticalStackLayout>
-                                <Label Grid.Column="1" Text="{Binding StatusDisplay}" 
-                                       FontSize="12" FontFamily="RobotoBold" VerticalOptions="Center" />
-                             </Grid>
-                        </Frame>
+                                <!-- Durée badge -->
+                                <Border Grid.Column="2" StrokeShape="RoundRectangle 8" Padding="8,4"
+                                        StrokeThickness="0" BackgroundColor="#FFF3E0" VerticalOptions="Center">
+                                    <Label Text="{Binding DurationDisplay}" FontFamily="RobotoBold" 
+                                           FontSize="12" TextColor="#F39C12" />
+                                </Border>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- ═══ SECTION RAPPORT MAINTENANCE ═══ -->
-
-            <!-- Statistiques Maintenance -->
-            <Frame Style="{StaticResource Card}" Padding="15" 
-                   IsVisible="{Binding TotalInterventions, Converter={StaticResource IntToBool}}">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="📊 Statistiques Maintenance" Style="{StaticResource HeadingLabel}" FontSize="16" />
-                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
-                        <Frame Style="{StaticResource CardAlt}" Padding="10">
-                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
-                                <Label Text="{Binding TotalInterventions}" FontSize="22" FontFamily="RobotoBold" 
-                                       TextColor="#F39C12" HorizontalTextAlignment="Center" />
-                                <Label Text="Interventions" FontSize="10" HorizontalTextAlignment="Center" 
-                                       TextColor="{StaticResource TextSecondary}" />
-                            </VerticalStackLayout>
-                        </Frame>
-                        <Frame Grid.Column="1" Style="{StaticResource CardAlt}" Padding="10">
-                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
-                                <Label Text="{Binding AverageDuration}" FontSize="16" FontFamily="RobotoBold" 
-                                       TextColor="#3498DB" HorizontalTextAlignment="Center" />
-                                <Label Text="Durée Moy." FontSize="10" HorizontalTextAlignment="Center" 
-                                       TextColor="{StaticResource TextSecondary}" />
-                            </VerticalStackLayout>
-                        </Frame>
-                        <Frame Grid.Column="2" Style="{StaticResource CardAlt}" Padding="10">
-                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
-                                <Label Text="{Binding TotalDuration}" FontSize="16" FontFamily="RobotoBold" 
-                                       TextColor="#E74C3C" HorizontalTextAlignment="Center" />
-                                <Label Text="Durée Tot." FontSize="10" HorizontalTextAlignment="Center" 
-                                       TextColor="{StaticResource TextSecondary}" />
-                            </VerticalStackLayout>
-                        </Frame>
-                    </Grid>
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Liste des Interventions -->
-            <CollectionView ItemsSource="{Binding MaintenanceSessions}">
+            <!-- ═══ LISTE MACHINES ═══ -->
+            <CollectionView ItemsSource="{Binding FilteredMachines}">
+                <CollectionView.Header>
+                    <Label Text="🏭 Machines" Style="{StaticResource HeadingLabel}" FontSize="16" Margin="0,5,0,5" />
+                </CollectionView.Header>
                 <CollectionView.EmptyView>
-                    <Label Text="" />
+                    <VerticalStackLayout Padding="30" Spacing="8">
+                        <Label Text="📊" FontSize="40" HorizontalTextAlignment="Center" />
+                        <Label Text="Click on a report button to display data." 
+                               HorizontalTextAlignment="Center" FontSize="12"
+                               TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:MaintenanceSession">
-                        <Frame Style="{StaticResource CardAlt}" Margin="0,5" Padding="12">
-                            <VerticalStackLayout Spacing="5">
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <Label Text="{Binding StartedAtDisplay, StringFormat='🔧 Début : {0}'}" 
-                                           FontFamily="RobotoBold" FontSize="13" />
-                                    <Label Grid.Column="1" Text="{Binding DurationDisplay}" 
-                                           FontSize="13" FontFamily="RobotoBold" 
-                                           TextColor="#F39C12" VerticalOptions="Center" />
-                                </Grid>
-                                <Label Text="{Binding EndedAtDisplay, StringFormat='✅ Fin : {0}'}" 
-                                       FontSize="11" TextColor="{StaticResource TextSecondary}" />
-                                <Label Text="{Binding MachineId, StringFormat='Machine ID : {0}'}" 
-                                       FontSize="10" TextColor="{StaticResource TextMuted}" />
-                            </VerticalStackLayout>
-                        </Frame>
+                    <DataTemplate x:DataType="models:Machine">
+                        <Border Style="{StaticResource BorderCardAlt}" Margin="0,4" Padding="14">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding StandardEquipmentName}" FontFamily="RobotoBold" FontSize="14" />
+                                    <HorizontalStackLayout Spacing="10">
+                                        <Label Text="{Binding Plant}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                        <Label Text="{Binding TagReference, StringFormat='🏷️ {0}'}" FontSize="10" TextColor="{StaticResource TextMuted}" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                                <Border Grid.Column="1" StrokeShape="RoundRectangle 8" Padding="10,4"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{Binding EquipmentStatus, Converter={StaticResource StatusToBadge}}"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding StatusDisplay}" 
+                                           TextColor="{Binding EquipmentStatus, Converter={StaticResource StatusToColor}}"
+                                           FontFamily="RobotoBold" FontSize="11" />
+                                </Border>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

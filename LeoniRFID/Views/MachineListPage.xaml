@@ -5,55 +5,84 @@
              xmlns:models="clr-namespace:LeoniRFID.Models"
              x:Class="LeoniRFID.Views.MachineListPage"
              x:DataType="vm:MachineListViewModel"
-             Title="Liste des Machines">
+             Title="Machine List">
 
     <Grid RowDefinitions="Auto, *">
 
-        <!-- Filtre par statut -->
-        <Frame Grid.Row="0" Style="{StaticResource Card}" Margin="10" Padding="15">
-            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
-                <Picker ItemsSource="{Binding FilterOptions}" 
-                        SelectedItem="{Binding SelectedFilter}" />
-                <Button Grid.Column="1" Text="🔍 Filtrer" 
-                        Command="{Binding LoadCommand}"
-                        Style="{StaticResource PrimaryButton}" 
-                        HeightRequest="44" Padding="20,0" />
-            </Grid>
-        </Frame>
+        <!-- ═══ Filtres ═══ -->
+        <Border Grid.Row="0" Style="{StaticResource BorderCard}" Margin="10" Padding="15">
+            <VerticalStackLayout Spacing="10">
 
-        <!-- Liste des machines -->
-        <CollectionView Grid.Row="1" ItemsSource="{Binding Machines}" Margin="10,0">
+                <!-- Recherche par nom -->
+                <Border Style="{StaticResource BorderCardAlt}" Padding="0" HeightRequest="46">
+                    <Entry Placeholder="🔍 Search by name, tag, serial no..."
+                           Text="{Binding SearchText}"
+                           Style="{StaticResource ModernEntry}"
+                           Margin="15,0" />
+                </Border>
+
+                <!-- Statut + Département côte à côte -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Status" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                        <Picker ItemsSource="{Binding StatusOptions}" 
+                                SelectedItem="{Binding SelectedStatus}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="3">
+                        <Label Text="Department" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                        <Picker ItemsSource="{Binding DepartmentOptions}" 
+                                SelectedItem="{Binding SelectedDepartment}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- Boutons -->
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                    <Button Text="🔍 Filter" 
+                            Command="{Binding ApplyFiltersCommand}"
+                            Style="{StaticResource PrimaryButton}" 
+                            HeightRequest="42" />
+                    <Button Grid.Column="1" Text="✖ Reset"
+                            Command="{Binding ClearFiltersCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            HeightRequest="42" Padding="15,0" />
+                </Grid>
+
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- ═══ Liste des machines ═══ -->
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Machines}" Margin="10,0"
+                        SelectionMode="Single"
+                        SelectionChanged="OnMachineSelected">
             <CollectionView.EmptyView>
                 <VerticalStackLayout VerticalOptions="Center" Spacing="10" Padding="40">
                     <Label Text="📦" FontSize="48" HorizontalTextAlignment="Center" />
-                    <Label Text="Aucune machine trouvée" 
+                    <Label Text="No machines found" 
                            Style="{StaticResource HeadingLabel}" 
                            HorizontalTextAlignment="Center" FontSize="16" />
+                    <Label Text="Try modifying your filters."
+                           TextColor="{StaticResource TextMuted}" 
+                           HorizontalTextAlignment="Center" FontSize="12" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Machine">
-                    <Frame Style="{StaticResource CardAlt}" Margin="0,5" Padding="15">
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer 
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MachineListViewModel}}, Path=ViewDetailCommand}"
-                                CommandParameter="{Binding .}" />
-                        </Frame.GestureRecognizers>
+                    <Border Style="{StaticResource InteractiveBorderCard}" Margin="0,5" Padding="15">
                         <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto" RowSpacing="3">
                             <!-- Nom -->
-                            <Label Text="{Binding Name}" FontFamily="RobotoBold" FontSize="15" />
+                            <Label Text="{Binding StandardEquipmentName}" FontFamily="RobotoBold" FontSize="15" />
                             <!-- Statut badge -->
                             <Label Grid.Column="1" Text="{Binding StatusDisplay}" 
                                    FontSize="12" FontFamily="RobotoBold" VerticalOptions="Center" />
-                            <!-- Département -->
-                            <Label Grid.Row="1" Text="{Binding Department}" 
+                            <!-- Plant -->
+                            <Label Grid.Row="1" Text="{Binding Plant}" 
                                    FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                            <!-- Tag ID -->
+                            <!-- Tag Reference -->
                             <Label Grid.Row="2" Grid.ColumnSpan="2" 
-                                   Text="{Binding TagId, StringFormat='🏷️ EPC: {0}'}" 
+                                   Text="{Binding TagReference, StringFormat='🏷️ EPC: {0}'}" 
                                    FontSize="10" TextColor="{StaticResource TextMuted}" />
                         </Grid>
-                    </Frame>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

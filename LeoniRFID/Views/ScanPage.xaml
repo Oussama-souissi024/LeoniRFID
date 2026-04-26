@@ -4,7 +4,7 @@
              xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
              x:Class="LeoniRFID.Views.ScanPage"
              x:DataType="vm:ScanViewModel"
-             Title="Scanner RFID">
+             Title="RFID Scanner">
 
     <!-- 🎓 Pédagogie PFE : Layout en Grille (Grid)
          La page est découpée en 3 rangées :
@@ -20,16 +20,16 @@
                    HorizontalTextAlignment="Center"
                    TextColor="{Binding TagNotFound, Converter={StaticResource StatusToColor}}" />
 
-            <Frame Style="{StaticResource CardAlt}" Padding="0" HeightRequest="50">
+            <Border Style="{StaticResource BorderCardAlt}" Padding="0" HeightRequest="50">
                 <Grid ColumnDefinitions="*, Auto">
-                    <Entry Placeholder="Saisie manuelle EPC..." 
+                    <Entry Placeholder="Manual EPC entry..." 
                            Text="{Binding ManualEpc}"
                            Style="{StaticResource ModernEntry}"
                            Margin="10,0" />
                     <Button Grid.Column="1" Text="OK" Command="{Binding ManualScanCommand}" 
                             BackgroundColor="{StaticResource LeoniMidBlue}" CornerRadius="0" WidthRequest="60" />
                 </Grid>
-            </Frame>
+            </Border>
         </VerticalStackLayout>
 
         <!-- Result / Animation Area -->
@@ -38,11 +38,11 @@
             <!-- Scanning Animation (Placeholder) -->
             <VerticalStackLayout IsVisible="{Binding IsScanning}" Spacing="20" VerticalOptions="Center">
                 <ActivityIndicator IsRunning="True" HeightRequest="100" WidthRequest="100" Color="{StaticResource LeoniOrange}" />
-                <Label Text="En attente de tag RFID..." Style="{StaticResource BodyLabel}" HorizontalTextAlignment="Center" />
+                <Label Text="Waiting for RFID tag..." Style="{StaticResource BodyLabel}" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
 
             <!-- Scanned Machine Result -->
-            <Frame IsVisible="{Binding HasMachine}" Style="{StaticResource Card}" VerticalOptions="Center" Padding="25">
+            <Border IsVisible="{Binding HasMachine}" Style="{StaticResource BorderCard}" VerticalOptions="Center" Padding="25">
                 <VerticalStackLayout Spacing="15">
                     <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Label Text="EPC:" Style="{StaticResource CaptionLabel}" VerticalOptions="Center" />
@@ -51,54 +51,54 @@
                     
                     <BoxView Style="{StaticResource Divider}" />
 
-                    <Label Text="{Binding FoundMachine.Name}" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
-                    <Label Text="{Binding FoundMachine.Department}" Style="{StaticResource SubHeadingLabel}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding FoundMachine.StandardEquipmentName}" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding FoundMachine.Plant}" Style="{StaticResource SubHeadingLabel}" HorizontalTextAlignment="Center" />
                     
-                    <Frame BackgroundColor="{Binding FoundMachine.Status, Converter={StaticResource StatusToBadge}}" 
-                           Padding="10,5" CornerRadius="5" HorizontalOptions="Center" HasShadow="False">
+                    <Border BackgroundColor="{Binding FoundMachine.EquipmentStatus, Converter={StaticResource StatusToBadge}}" 
+                            StrokeThickness="0" StrokeShape="RoundRectangle 5" Padding="10,5" HorizontalOptions="Center">
                         <Label Text="{Binding FoundMachine.StatusDisplay}" TextColor="White" FontFamily="RobotoBold" />
-                    </Frame>
+                    </Border>
 
-                    <Button Text="Voir détails complets" 
+                    <Button Text="View full details" 
                             Style="{StaticResource SecondaryButton}" 
                             Command="{Binding ViewDetailCommand}" 
                             Margin="0,15,0,0" />
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- 🎓 Tag inconnu → Formulaire d'enregistrement nouvelle machine -->
-            <Frame IsVisible="{Binding ShowRegisterForm}" Style="{StaticResource Card}" VerticalOptions="Center" Padding="20">
+            <Border IsVisible="{Binding ShowRegisterForm}" Style="{StaticResource BorderCard}" VerticalOptions="Center" Padding="20">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="🆕 Nouvelle Machine" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
-                    <Label Text="{Binding ScannedEpc, StringFormat='Tag EPC : {0}'}" 
+                    <Label Text="🆕 New Machine" Style="{StaticResource HeadingLabel}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding ScannedEpc, StringFormat='EPC Tag: {0}'}" 
                            Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
                     
                     <BoxView Style="{StaticResource Divider}" />
 
                     <!-- Nom de la machine -->
-                    <Label Text="Nom de la machine" Style="{StaticResource CaptionLabel}" />
-                    <Frame Style="{StaticResource CardAlt}" Padding="0" HeightRequest="50">
-                        <Entry Placeholder="Ex: Sertisseuse Auto K1" 
+                    <Label Text="Machine name" Style="{StaticResource CaptionLabel}" />
+                    <Border Style="{StaticResource BorderCardAlt}" Padding="0" HeightRequest="50">
+                        <Entry Placeholder="Ex: Auto Crimper K1" 
                                Text="{Binding NewMachineName}" 
                                Style="{StaticResource ModernEntry}" Margin="10,0" />
-                    </Frame>
+                    </Border>
 
-                    <!-- Département -->
-                    <Label Text="Département" Style="{StaticResource CaptionLabel}" />
-                    <Picker ItemsSource="{Binding DepartmentOptions}" 
-                            SelectedItem="{Binding SelectedDepartment}" />
+                    <!-- Plant -->
+                    <Label Text="Plant" Style="{StaticResource CaptionLabel}" />
+                    <Picker ItemsSource="{Binding PlantOptions}" 
+                            SelectedItem="{Binding SelectedPlant}" />
 
                     <!-- Boutons -->
-                    <Button Text="✅ ENREGISTRER LA MACHINE"
+                    <Button Text="✅ REGISTER MACHINE"
                             Command="{Binding RegisterMachineCommand}"
                             BackgroundColor="#27AE60" TextColor="White"
                             HeightRequest="50" CornerRadius="10" FontAttributes="Bold" />
-                    <Button Text="Annuler" 
+                    <Button Text="Cancel" 
                             Style="{StaticResource SecondaryButton}" 
                             Command="{Binding StartScanCommand}" 
                             HeightRequest="40" />
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
         </Grid>
 
@@ -106,7 +106,7 @@
 
         <!-- 🎓 TECHNICIEN : Bouton "Signaler Panne" (visible si machine = Running) -->
         <Button Grid.Row="2" 
-                Text="🔴 SIGNALER PANNE"
+                Text="🔴 REPORT DEFECT"
                 IsVisible="{Binding CanReportBroken}"
                 Command="{Binding ReportBrokenCommand}"
                 BackgroundColor="#E74C3C" TextColor="White"
@@ -114,7 +114,7 @@
 
         <!-- 🎓 AGENT MAINTENANCE : Bouton "Commencer Maintenance" (visible si machine = Broken) -->
         <Button Grid.Row="2" 
-                Text="🔧 COMMENCER MAINTENANCE"
+                Text="🔧 START MAINTENANCE"
                 IsVisible="{Binding CanStartMaintenance}"
                 Command="{Binding StartMaintenanceCommand}"
                 BackgroundColor="#F39C12" TextColor="White"
@@ -123,29 +123,29 @@
         <!-- 🎓 AGENT MAINTENANCE : Timer + Bouton "Maintenance Terminée" (visible si machine = InMaintenance) -->
         <VerticalStackLayout Grid.Row="2" IsVisible="{Binding CanEndMaintenance}" Spacing="10">
             <!-- Timer en temps réel -->
-            <Frame BackgroundColor="#2C3E50" Padding="15" CornerRadius="10" HasShadow="False">
+            <Border BackgroundColor="#2C3E50" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="15">
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
                     <Label Text="⏱️" FontSize="28" VerticalOptions="Center" />
                     <Label Text="{Binding MaintenanceTimer}" 
                            FontSize="32" FontFamily="RobotoBold" TextColor="#F39C12"
                            VerticalOptions="Center" />
                 </HorizontalStackLayout>
-            </Frame>
+            </Border>
             <!-- Bouton Terminer -->
-            <Button Text="✅ MAINTENANCE TERMINÉE"
+            <Button Text="✅ END MAINTENANCE"
                     Command="{Binding EndMaintenanceCommand}"
                     BackgroundColor="#27AE60" TextColor="White"
                     HeightRequest="60" CornerRadius="10" FontAttributes="Bold" />
         </VerticalStackLayout>
 
         <!-- Start/Stop Floating Button if not scanning and no machine -->
-        <Button Grid.Row="2" Text="DÉMARRER SCAN RFID" 
+        <Button Grid.Row="2" Text="START RFID SCAN" 
                 IsVisible="{Binding IsScanning, Converter={StaticResource InverseBool}}"
                 Command="{Binding StartScanCommand}"
                 Style="{StaticResource PrimaryButton}" 
                 VerticalOptions="End" />
 
-        <Button Grid.Row="2" Text="ARRÊTER SCAN" 
+        <Button Grid.Row="2" Text="STOP SCAN" 
                 IsVisible="{Binding IsScanning}"
                 Command="{Binding StopScanCommand}"
                 BackgroundColor="#C0392B"

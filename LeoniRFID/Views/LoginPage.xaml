@@ -12,63 +12,53 @@
     <!-- 🎓 Pédagogie PFE : Le DataBinding Fortement Typé
          Déclarer x:DataType permet à Visual Studio de vérifier pendant la compilation 
          que les liaisons de données (Bindings) existent bien dans LoginViewModel. -->
-
-    <Grid RowDefinitions="*,Auto" Padding="30">
-        
-        <!-- Background Gradient (simplified with background color) -->
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#00205B" Offset="0.1" />
-                <GradientStop Color="#001233" Offset="1.0" />
-            </LinearGradientBrush>
-        </Grid.Background>
+    <Grid RowDefinitions="*,Auto" Padding="30" Background="{StaticResource BlueGradient}">
 
         <VerticalStackLayout Grid.Row="0" Spacing="25" VerticalOptions="Center">
             
             <!-- Logo Holder (PNG expected later) -->
-            <Frame BackgroundColor="White" 
-                   Padding="15" 
-                   CornerRadius="10" 
-                   WidthRequest="180" 
-                   HorizontalOptions="Center"
-                   HasShadow="False">
+            <Border Style="{StaticResource BorderCard}" 
+                    BackgroundColor="White" 
+                    Padding="15" 
+                    WidthRequest="180" 
+                    HorizontalOptions="Center">
                 <Label Text="LEONI" 
                        TextColor="#00205B" 
                        FontFamily="RobotoBold" 
                        FontSize="32" 
                        HorizontalTextAlignment="Center" 
                        VerticalTextAlignment="Center" />
-            </Frame>
+            </Border>
 
             <VerticalStackLayout Spacing="5" Margin="0,10,0,20">
-                <Label Text="Production RFID" 
-                       Style="{StaticResource HeadingLabel}" 
+                <Label Text="RFID Production" 
+                       Style="{StaticResource HeadingLabel}" TextColor="White"
                        HorizontalTextAlignment="Center" />
-                <Label Text="Suivi et Traçabilité Industrielle" 
-                       Style="{StaticResource SubHeadingLabel}" 
+                <Label Text="Industrial Tracking &amp; Traceability" 
+                       Style="{StaticResource SubHeadingLabel}" TextColor="#B0C4DE"
                        HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
 
             <!-- Login Form -->
             <VerticalStackLayout Spacing="15">
                 
-                <Frame Style="{StaticResource CardAlt}" Padding="0">
-                    <Entry Placeholder="Email professionnel"
+                <Border Style="{StaticResource BorderCardAlt}" Padding="0">
+                    <Entry Placeholder="Professional Email"
                            Keyboard="Email"
                            Text="{Binding Email}"
                            Style="{StaticResource ModernEntry}"
                            Margin="15,0" />
-                </Frame>
+                </Border>
 
                 <!-- 🎓 Pédagogie PFE : Les Convertisseurs (Converters)
                      L'interface graphique ne sait pas faire de "NON Logique" (!IsFirstLogin).
                      On utilise donc un Convertisseur (InverseBool) qui transforme True en False 
                      (et inversement) pour cacher ce bloc quand on est en mode "Première connexion". -->
                 <!-- ══ Champs Mot de passe classique (caché si première connexion) ══ -->
-                <Frame Style="{StaticResource CardAlt}" Padding="0"
-                       IsVisible="{Binding IsFirstLogin, Converter={StaticResource InverseBool}}">
+                <Border Style="{StaticResource BorderCardAlt}" Padding="0"
+                        IsVisible="{Binding IsFirstLogin, Converter={StaticResource InverseBool}}">
                     <Grid ColumnDefinitions="*,Auto">
-                        <Entry Placeholder="Mot de passe"
+                        <Entry Placeholder="Password"
                                IsPassword="{Binding IsPasswordVisible, Converter={StaticResource InverseBool}}"
                                Text="{Binding Password}"
                                Style="{StaticResource ModernEntry}"
@@ -81,10 +71,10 @@
                                      Margin="0,0,10,0"
                                      BackgroundColor="Transparent" />
                     </Grid>
-                </Frame>
+                </Border>
 
                 <!-- ══ Bouton SE CONNECTER (caché si première connexion) ══ -->
-                <Button Text="SE CONNECTER"
+                <Button Text="LOGIN"
                         Command="{Binding LoginCommand}"
                         Style="{StaticResource PrimaryButton}"
                         Margin="0,10,0,0"
@@ -95,7 +85,7 @@
                     <CheckBox IsChecked="{Binding IsFirstLogin}" 
                               Color="{StaticResource LeoniOrange}"
                               IsEnabled="{Binding CanUseFirstLogin}" />
-                    <Label Text="C'est ma première connexion" 
+                    <Label Text="This is my first login" 
                            TextColor="{Binding FirstLoginTextColor}" 
                            FontSize="14"
                            VerticalOptions="Center" />
@@ -108,27 +98,26 @@
                        IsVisible="{Binding FirstLoginHint, Converter={StaticResource NotNullToVisible}}" />
 
                 <VerticalStackLayout Spacing="12" IsVisible="{Binding IsFirstLogin}">
-                    <Frame Style="{StaticResource CardAlt}" Padding="0">
-                        <Entry Placeholder="Nouveau mot de passe"
+                    <Border Style="{StaticResource BorderCardAlt}" Padding="0">
+                        <Entry Placeholder="New password"
                                IsPassword="True"
                                Text="{Binding NewPassword}"
                                Style="{StaticResource ModernEntry}"
                                Margin="15,0" />
-                    </Frame>
-                    <Frame Style="{StaticResource CardAlt}" Padding="0">
-                        <Entry Placeholder="Confirmer le mot de passe"
+                    </Border>
+                    <Border Style="{StaticResource BorderCardAlt}" Padding="0">
+                        <Entry Placeholder="Confirm password"
                                IsPassword="True"
                                Text="{Binding ConfirmPassword}"
                                Style="{StaticResource ModernEntry}"
                                Margin="15,0" />
-                    </Frame>
-                    <Button Text="DÉFINIR MON MOT DE PASSE"
+                    </Border>
+                    <Button Text="SET MY PASSWORD"
                             Command="{Binding SetFirstPasswordCommand}"
                             Style="{StaticResource PrimaryButton}"
                             BackgroundColor="{StaticResource StatusInstalled}" />
                 </VerticalStackLayout>
                 
-
             </VerticalStackLayout>
 
             <!-- Error Message -->
@@ -143,6 +132,9 @@
         <!-- Footer -->
         <VerticalStackLayout Grid.Row="1" Spacing="2">
             <Label Text="© 2026 LEONI Wiring Systems" 
+                   Style="{StaticResource CaptionLabel}" 
+                   HorizontalTextAlignment="Center" />
+            <Label Text="Powered by Hanin Morjene" 
                    Style="{StaticResource CaptionLabel}" 
                    HorizontalTextAlignment="Center" />
             <Label Text="v1.0.0 Stable Build" 

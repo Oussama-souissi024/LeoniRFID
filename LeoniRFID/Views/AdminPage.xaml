@@ -6,7 +6,7 @@
              x:Class="LeoniRFID.Views.AdminPage"
              x:DataType="vm:AdminViewModel"
              x:Name="adminPage"
-             Title="Administration Pro">
+             Title="Pro Administration">
 
     <!-- 🎓 Pédagogie PFE : Layout en Grille (Grid)
          RowDefinitions="Auto, *" signifie que la première ligne (Header) 
@@ -15,29 +15,29 @@
     <Grid RowDefinitions="Auto, *">
         
         <!-- Header Actions -->
-        <Frame Grid.Row="0" BackgroundColor="{StaticResource LeoniMidBlue}" Margin="10" Padding="15" CornerRadius="10">
+        <Border Grid.Row="0" Background="{StaticResource BlueGradient}" Margin="10" Padding="15" StrokeThickness="0" StrokeShape="RoundRectangle 10">
             <HorizontalStackLayout Spacing="15" HorizontalOptions="Center">
-                <Button Text="IMPORTER EXCEL" Command="{Binding ImportExcelCommand}" Style="{StaticResource PrimaryButton}" HeightRequest="44" Padding="20,0" />
-                <Button Text="MODÈLE EXCEL" Command="{Binding GenerateSampleExcelCommand}" Style="{StaticResource SecondaryButton}" HeightRequest="44" Padding="20,0" />
+                <Button Text="IMPORT EXCEL" Command="{Binding ImportExcelCommand}" Style="{StaticResource PrimaryButton}" HeightRequest="44" Padding="20,0" />
+                <Button Text="EXCEL TEMPLATE" Command="{Binding GenerateSampleExcelCommand}" Style="{StaticResource SecondaryButton}" HeightRequest="44" Padding="20,0" />
             </HorizontalStackLayout>
-        </Frame>
+        </Border>
 
         <!-- Machine List -->
         <CollectionView Grid.Row="1" ItemsSource="{Binding Machines}" Margin="10,0">
             <CollectionView.Header>
-                <Label Text="Inventaire des Machines" Style="{StaticResource HeadingLabel}" Margin="5,10" FontSize="16" />
+                <Label Text="Machine Inventory" Style="{StaticResource HeadingLabel}" Margin="5,10" FontSize="16" />
             </CollectionView.Header>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Machine">
-                    <Frame Style="{StaticResource CardAlt}" Margin="0,5" Padding="12">
+                    <Border Style="{StaticResource InteractiveBorderCard}" Margin="0,5" Padding="12">
                         <Grid ColumnDefinitions="*, Auto">
                             <VerticalStackLayout Spacing="2">
-                                <Label Text="{Binding Name}" FontFamily="RobotoBold" FontSize="15" />
-                                <Label Text="{Binding TagId}" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding StandardEquipmentName}" FontFamily="RobotoBold" FontSize="15" />
+                                <Label Text="{Binding TagReference}" Style="{StaticResource CaptionLabel}" />
                                 <HorizontalStackLayout Spacing="10">
-                                    <Label Text="{Binding Department}" FontSize="11" TextColor="{StaticResource LeoniOrange}" />
+                                    <Label Text="{Binding Plant}" FontSize="11" TextColor="{StaticResource LeoniOrange}" />
                                     <Label Text="•" TextColor="{StaticResource TextMuted}" />
-                                    <Label Text="{Binding Status}" FontSize="11" TextColor="{Binding Status, Converter={StaticResource StatusToColor}}" />
+                                    <Label Text="{Binding StatusDisplay}" FontSize="11" TextColor="{Binding EquipmentStatus, Converter={StaticResource StatusToColor}}" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
                             <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
@@ -45,7 +45,7 @@
                                 <ImageButton Source="delete_icon.png" Command="{Binding BindingContext.DeleteMachineCommand, Source={x:Reference adminPage}}" CommandParameter="{Binding .}" WidthRequest="32" HeightRequest="32" x:DataType="{x:Null}" />
                             </HorizontalStackLayout>
                         </Grid>
-                    </Frame>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

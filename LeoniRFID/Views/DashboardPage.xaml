@@ -5,146 +5,157 @@
              xmlns:models="clr-namespace:LeoniRFID.Models"
              x:Class="LeoniRFID.Views.DashboardPage"
              x:DataType="vm:DashboardViewModel"
-             Title="Tableau de bord">
+             Title="Dashboard">
 
-    <!-- Commentaire pédagogique :
-         - `ToolbarItems` permet d'ajouter des actions accessibles dans la barre d'app.
-         - Les commandes sont liées au ViewModel via `Binding` pour séparer UI et logique.
-    -->
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Déconnexion" Command="{Binding LogoutCommand}" />
+        <ToolbarItem Text="Logout" Command="{Binding LogoutCommand}" />
     </ContentPage.ToolbarItems>
 
     <ScrollView>
-        <VerticalStackLayout Padding="24,30" Spacing="30">
+        <VerticalStackLayout Padding="24,30" Spacing="24">
 
-            <!-- Hero / Welcome Section -->
-            <VerticalStackLayout Spacing="5" Margin="0,0,0,10">
+            <!-- ═══ Hero / Welcome ═══ -->
+            <VerticalStackLayout Spacing="5" Margin="0,0,0,5">
                 <Label Text="We are LEONI." Style="{StaticResource HeadingLabel}" FontSize="28" TextColor="{StaticResource LeoniDarkBlue}" />
                 <Label Text="Your Empowering Connection." Style="{StaticResource SubHeadingLabel}" TextColor="{StaticResource LeoniOrange}" FontAttributes="Italic" />
             </VerticalStackLayout>
 
+            <!-- ═══ Profil utilisateur ═══ -->
             <Grid ColumnDefinitions="Auto, *" ColumnSpacing="15">
-                <Frame WidthRequest="60" 
-                       HeightRequest="60" 
-                       CornerRadius="30" 
-                       Padding="0" 
-                       BackgroundColor="{StaticResource LeoniOrange}"
-                       HasShadow="False"
-                       BorderColor="Transparent">
-                    <Label Text="{Binding UserInitials}" 
-                           TextColor="White"
-                           HorizontalTextAlignment="Center" 
-                           VerticalTextAlignment="Center"
-                           FontFamily="RobotoBold" 
-                           FontSize="24" />
-                </Frame>
+                <Border WidthRequest="60" HeightRequest="60" 
+                        StrokeShape="RoundRectangle 30" StrokeThickness="0"
+                        Padding="0" Background="{StaticResource PrimaryGradient}">
+                    <Label Text="{Binding UserInitials}" TextColor="White"
+                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                           FontFamily="RobotoBold" FontSize="24" />
+                </Border>
                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                     <Label Text="{Binding UserName}" Style="{StaticResource HeadingLabel}" FontSize="18" />
                     <Label Text="{Binding UserRole}" Style="{StaticResource SubHeadingLabel}" />
                 </VerticalStackLayout>
             </Grid>
 
-            <!-- Quick Action Cards -->
-            <Grid ColumnDefinitions="*, *" ColumnSpacing="15" RowDefinitions="Auto, Auto" RowSpacing="15">
-                <!-- Main Scan Card (Full Width) -->
-                <Frame Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource Card}" CornerRadius="20" BackgroundColor="{StaticResource LeoniDarkBlue}">
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoToScanAsyncCommand}" />
-                    </Frame.GestureRecognizers>
+            <!-- ═══ Quick Actions ═══ -->
+            <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="12" RowSpacing="12">
+
+                <!-- Scanner RFID (Full Width) -->
+                <Border Grid.ColumnSpan="2" Style="{StaticResource InteractiveBorderCard}" Background="{StaticResource BlueGradient}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToScanCommand}" />
+                    </Border.GestureRecognizers>
                     <Grid ColumnDefinitions="*, Auto">
                         <VerticalStackLayout Spacing="8" VerticalOptions="Center">
-                             <Label Text="Lancer un Scan" Style="{StaticResource HeadingLabel}" TextColor="White" FontSize="22" />
-                             <Label Text="Scanner un tag UHF RFID Zebra" Style="{StaticResource BodyLabel}" TextColor="#E2E8F0" />
+                             <Label Text="Start a Scan" Style="{StaticResource HeadingLabel}" TextColor="White" FontSize="22" />
+                             <Label Text="Scan a Zebra UHF RFID tag" Style="{StaticResource BodyLabel}" TextColor="#E2E8F0" />
                         </VerticalStackLayout>
-                        <!-- Example of replacing the missing icon with an emoji for now if image isn't great -->
                         <Label Grid.Column="1" Text="📡" FontSize="40" VerticalOptions="Center" />
                     </Grid>
-                </Frame>
+                </Border>
 
-                <Frame Grid.Row="1" Grid.Column="0" Style="{StaticResource CardAlt}">
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoToReportAsyncCommand}" />
-                    </Frame.GestureRecognizers>
-                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center" Padding="10">
+                <!-- Maintenance (Full Width, visible Maintenance + Admin) -->
+                <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource InteractiveBorderCard}" 
+                        Background="{StaticResource PrimaryGradient}" IsVisible="{Binding IsMaintenance}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToMaintenanceCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Spacing="8" VerticalOptions="Center">
+                             <Label Text="🔧 Maintenance" Style="{StaticResource HeadingLabel}" TextColor="White" FontSize="22" />
+                             <Label Text="Manage ongoing interventions" Style="{StaticResource BodyLabel}" TextColor="#FFF3E0" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="🔧" FontSize="40" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Machines -->
+                <Border Grid.Row="2" Style="{StaticResource InteractiveBorderCard}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToMachinesCommand}" />
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center" Padding="10">
+                        <Label Text="🏭" FontSize="36" HorizontalTextAlignment="Center" />
+                        <Label Text="Machines" Style="{StaticResource HeadingLabel}" FontSize="15" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Rapports -->
+                <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource InteractiveBorderCard}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToReportCommand}" />
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center" Padding="10">
                         <Label Text="📊" FontSize="36" HorizontalTextAlignment="Center" />
-                        <Label Text="Rapports" Style="{StaticResource HeadingLabel}" FontSize="16" HorizontalTextAlignment="Center" />
+                        <Label Text="Reports" Style="{StaticResource HeadingLabel}" FontSize="15" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
-                <Frame Grid.Row="1" Grid.Column="1" Style="{StaticResource CardAlt}" IsVisible="{Binding IsAdmin}">
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoToAdminAsyncCommand}" />
-                    </Frame.GestureRecognizers>
-                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center" Padding="10">
-                        <Label Text="⚙️" FontSize="36" HorizontalTextAlignment="Center" />
-                        <Label Text="Admin" Style="{StaticResource HeadingLabel}" FontSize="16" HorizontalTextAlignment="Center" />
-                    </VerticalStackLayout>
-                </Frame>
             </Grid>
 
-            <!-- Stats Grid (Workflow Maintenance) -->
-            <Label Text="Statistiques Production" Style="{StaticResource HeadingLabel}" FontSize="18" />
+            <!-- ═══ Admin Quick Access (visible Admin only) ═══ -->
+            <Border Style="{StaticResource InteractiveBorderCard}" IsVisible="{Binding IsAdmin}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoToAdminCommand}" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="12" Padding="5">
+                    <Label Text="⚙️" FontSize="28" VerticalOptions="Center" />
+                    <VerticalStackLayout VerticalOptions="Center">
+                        <Label Text="Administration" Style="{StaticResource HeadingLabel}" FontSize="16" />
+                        <Label Text="Users, departments, settings" 
+                               FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- ═══ Statistiques Production ═══ -->
+            <Label Text="Production Statistics" Style="{StaticResource HeadingLabel}" FontSize="18" />
             <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" RowDefinitions="Auto, Auto" RowSpacing="10">
-                <Frame Style="{StaticResource CardAlt}" Padding="10,15">
+                <Border Style="{StaticResource BorderCardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="{Binding RunningCount}" TextColor="#27AE60" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
-                        <Label Text="✅ En Marche" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
+                        <Label Text="{Binding ActiveCount}" TextColor="#27AE60" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="✅ Active" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
-                </Frame>
-                <Frame Grid.Column="1" Style="{StaticResource CardAlt}" Padding="10,15">
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource BorderCardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="{Binding BrokenCount}" TextColor="#E74C3C" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
-                        <Label Text="🔴 En Panne" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
+                        <Label Text="{Binding DefectCount}" TextColor="#E74C3C" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="🔴 Defect" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
-                </Frame>
-                <Frame Grid.Column="2" Style="{StaticResource CardAlt}" Padding="10,15">
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource BorderCardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
                         <Label Text="{Binding InMaintenanceCount}" TextColor="#F39C12" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
                         <Label Text="🔧 Maint." FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
-                </Frame>
-                <Frame Grid.Row="1" Style="{StaticResource CardAlt}" Padding="10,15">
+                </Border>
+                <Border Grid.Row="1" Style="{StaticResource BorderCardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="{Binding PausedCount}" TextColor="#9B59B6" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
-                        <Label Text="⏸️ En Pause" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
+                        <Label Text="{Binding PassiveCount}" TextColor="#3498DB" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="⏸️ Passive" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
-                </Frame>
-                <Frame Grid.Row="1" Grid.Column="1" Style="{StaticResource CardAlt}" Padding="10,15">
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource BorderCardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="{Binding RemovedCount}" TextColor="#95A5A6" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
-                        <Label Text="❌ Retiré" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
+                        <Label Text="{Binding ScrappedCount}" TextColor="#95A5A6" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
+                        <Label Text="❌ Scrapped" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
-                </Frame>
-                <Frame Grid.Row="1" Grid.Column="2" Style="{StaticResource CardAlt}" Padding="10,15">
+                </Border>
+                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource BorderCardAlt}" Padding="10,15">
                     <VerticalStackLayout Spacing="5">
                         <Label Text="{Binding TotalMachines}" TextColor="{StaticResource TextPrimary}" FontSize="22" FontFamily="RobotoBold" HorizontalTextAlignment="Center" />
                         <Label Text="📊 Total" FontSize="10" HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
             </Grid>
 
-            <!-- Sync Section -->
-            <Frame Style="{StaticResource CardAlt}" Padding="20">
-                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
-                        <Label Text="État Synchronisation" Style="{StaticResource HeadingLabel}" FontSize="15" />
-                        <Label Text="{Binding SyncStatus}" TextColor="{StaticResource TextSecondary}" FontSize="13" />
-                    </VerticalStackLayout>
-                    <Button Grid.Column="1" Text="Synchroniser" Command="{Binding SyncNowCommand}" 
-                            Style="{StaticResource SecondaryButton}" HeightRequest="44" Padding="15,0" FontSize="13" />
-                </Grid>
-            </Frame>
-
-            <!-- Recent Activity -->
-            <Label Text="Activités Récentes" Style="{StaticResource HeadingLabel}" FontSize="16" />
+            <!-- ═══ Activités Récentes ═══ -->
+            <Label Text="Recent Activities" Style="{StaticResource HeadingLabel}" FontSize="16" />
             <CollectionView ItemsSource="{Binding RecentEvents}" HeightRequest="300">
                 <CollectionView.EmptyView>
-                    <Label Text="Aucune activité récente." HorizontalTextAlignment="Center" Margin="20" TextColor="{StaticResource TextMuted}" />
+                    <Label Text="No recent activity." HorizontalTextAlignment="Center" Margin="20" TextColor="{StaticResource TextMuted}" />
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:ScanEvent">
-                        <Frame Style="{StaticResource CardAlt}" Margin="0,5" Padding="12" CornerRadius="10">
+                        <Border Style="{StaticResource BorderCardAlt}" Margin="0,5" Padding="12">
                              <Grid ColumnDefinitions="Auto, *, Auto">
                                  <Label Text="{Binding EventIcon}" FontSize="24" VerticalOptions="Center" />
                                  <VerticalStackLayout Grid.Column="1" Margin="15,0" VerticalOptions="Center">
@@ -153,7 +164,7 @@
                                  </VerticalStackLayout>
                                  <Label Grid.Column="2" Text="{Binding TimestampDisplay}" FontSize="10" TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
                              </Grid>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

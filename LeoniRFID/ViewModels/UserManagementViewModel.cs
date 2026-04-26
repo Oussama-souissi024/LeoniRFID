@@ -13,7 +13,7 @@ public partial class UserManagementViewModel : BaseViewModel
     public UserManagementViewModel(SupabaseService supabase)
     {
         _supabase = supabase;
-        Title = "Gestion des utilisateurs";
+        Title = "User Management";
     }
 
     // ── Liste des utilisateurs ──
@@ -32,7 +32,7 @@ public partial class UserManagementViewModel : BaseViewModel
 
     // ── Rôles disponibles ──
     public List<string> AvailableRoles { get; } = new() { "Technician", "Maintenance", "Admin" };
-    public List<string> AvailableRolesDisplay { get; } = new() { "👷 Technicien", "🔧 Agent Maintenance", "👑 Administrateur" };
+    public List<string> AvailableRolesDisplay { get; } = new() { "👷 Technician", "🔧 Maintenance Agent", "👑 Administrator" };
 
     [RelayCommand]
     private async Task LoadUsersAsync()
@@ -50,7 +50,7 @@ public partial class UserManagementViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            SetError($"Erreur chargement : {ex.Message}");
+            SetError($"Loading error: {ex.Message}");
         }
         finally
         {
@@ -77,10 +77,10 @@ public partial class UserManagementViewModel : BaseViewModel
         ClearMessages();
 
         if (string.IsNullOrWhiteSpace(NewUserName))
-        { SetError("Le nom complet est requis."); return; }
+        { SetError("Full name is required."); return; }
 
         if (string.IsNullOrWhiteSpace(NewUserEmail) || !NewUserEmail.Contains('@'))
-        { SetError("Un email valide est requis."); return; }
+        { SetError("Valid email is required."); return; }
 
         IsBusy = true;
         try
@@ -109,7 +109,7 @@ public partial class UserManagementViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            SetError($"Erreur : {ex.Message}");
+            SetError($"Error: {ex.Message}");
         }
         finally
         {
@@ -121,8 +121,16 @@ public partial class UserManagementViewModel : BaseViewModel
     private async Task ToggleUserStatusAsync(Profile user)
     {
         if (IsBusy) return;
-        IsBusy = true;
 
+        string newStatus = user.IsActive ? "Disable" : "Enable";
+        bool confirm = await Shell.Current.DisplayAlert(
+            "Change Status",
+            $"{newStatus} the account of {user.FullName}?",
+            newStatus, "Cancel");
+
+        if (!confirm) return;
+
+        IsBusy = true;
         var (success, message) = await _supabase.ToggleUserActiveAsync(
             user.Id, !user.IsActive);
 
@@ -140,15 +148,15 @@ public partial class UserManagementViewModel : BaseViewModel
     {
         // Proposer les 3 rôles possibles
         string action = await Shell.Current.DisplayActionSheet(
-            $"Changer le rôle de {user.FullName}",
-            "Annuler", null,
-            "👷 Technicien", "🔧 Agent Maintenance", "👑 Administrateur");
+            $"Change role for {user.FullName}",
+            "Cancel", null,
+            "👷 Technician", "🔧 Maintenance Agent", "👑 Administrator");
 
         string? newRole = action switch
         {
-            "👷 Technicien"        => "Technician",
-            "🔧 Agent Maintenance" => "Maintenance",
-            "👑 Administrateur"    => "Admin",
+            "👷 Technician"        => "Technician",
+            "🔧 Maintenance Agent" => "Maintenance",
+            "👑 Administrator"     => "Admin",
             _ => null
         };
 
@@ -164,5 +172,40 @@ public partial class UserManagementViewModel : BaseViewModel
 
         await LoadUsersAsync();
         IsBusy = false;
+    }
+
+    [RelayCommand]
+    private async Task DeleteUserAsync(Profile user)
+    {
+        if (IsBusy) return;
+
+        bool confirm = await Shell.Current.DisplayAlert(
+            "⚠️ Delete Account",
+            $"Permanently delete the account of {user.FullName}?\n\nThis action is irreversible.",
+            "Delete", "Cancel");
+
+        if (!confirm) return;
+
+        IsBusy = true;
+        try
+        {
+            var (success, message) = await _supabase.DeleteUserAsync(user.Id);
+
+            if (success)
+            {
+                SetSuccess(message);
+                Users.Remove(user);
+            }
+            else
+                SetError(message);
+        }
+        catch (Exception ex)
+        {
+            SetError($"Error: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

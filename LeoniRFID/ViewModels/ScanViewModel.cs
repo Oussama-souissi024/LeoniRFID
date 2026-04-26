@@ -20,7 +20,7 @@ public partial class ScanViewModel : BaseViewModel
     {
         _supabase = supabase;
         _rfid = rfid;
-        Title  = "Scanner RFID";
+        Title  = "RFID Scanner";
         _rfid.TagScanned += OnTagScanned;
     }
 
@@ -31,7 +31,7 @@ public partial class ScanViewModel : BaseViewModel
     [ObservableProperty] private Machine? _foundMachine;
     [ObservableProperty] private bool     _isScanning     = false;
     [ObservableProperty] private bool     _tagNotFound    = false;
-    [ObservableProperty] private string   _scanStatusText = "Approchez un tag RFID…";
+    [ObservableProperty] private string   _scanStatusText = "Bring an RFID tag closer...";
 
     // ── Rôle de l'utilisateur connecté ──────────────────────────────────
     [ObservableProperty] private bool _isTechnician;
@@ -51,8 +51,8 @@ public partial class ScanViewModel : BaseViewModel
     // ── Formulaire d'enregistrement nouvelle machine ────────────────────
     [ObservableProperty] private bool   _showRegisterForm;
     [ObservableProperty] private string _newMachineName       = string.Empty;
-    [ObservableProperty] private string _selectedDepartment   = "LTN1";
-    public List<string> DepartmentOptions { get; } = ["LTN1", "LTN2", "LTN3"];
+    [ObservableProperty] private string _selectedPlant        = "LTN1";
+    public List<string> PlantOptions { get; } = ["MH", "SB", "MS", "MN", "LTN1", "LTN2", "LTN3"];
 
     public bool HasMachine => FoundMachine is not null;
 
@@ -64,7 +64,7 @@ public partial class ScanViewModel : BaseViewModel
         IsScanning     = true;
         TagNotFound    = false;
         FoundMachine   = null;
-        ScanStatusText = "Lecture en cours…";
+        ScanStatusText = "Reading...";
         ScannedEpc     = string.Empty;
         ErrorMessage   = string.Empty;
         StopTimer();
@@ -76,7 +76,7 @@ public partial class ScanViewModel : BaseViewModel
     private void StopScan()
     {
         IsScanning     = false;
-        ScanStatusText = "Scan arrêté.";
+        ScanStatusText = "Scan stopped.";
         _rfid.StopListening();
     }
 
@@ -112,18 +112,18 @@ public partial class ScanViewModel : BaseViewModel
             IsMaintenanceAgent = _supabase.IsMaintenance;
 
             // 2. Chercher la machine dans Supabase via son tag RFID
-            FoundMachine = await _supabase.GetMachineByTagIdAsync(epc);
+            FoundMachine = await _supabase.GetMachineByTagReferenceAsync(epc);
             TagNotFound  = FoundMachine is null;
 
             if (TagNotFound)
             {
-                ScanStatusText = "🆕 Tag inconnu — Enregistrer comme nouvelle machine ?";
+                ScanStatusText = "🆕 Unknown tag — Register as a new machine?";
                 ShowRegisterForm = true;
                 NewMachineName = string.Empty;
             }
             else
             {
-                ScanStatusText = $"✅ Machine trouvée : {FoundMachine!.Name}";
+                ScanStatusText = $"✅ Machine found: {FoundMachine!.StandardEquipmentName}";
                 ShowRegisterForm = false;
             }
 
@@ -143,13 +143,31 @@ public partial class ScanViewModel : BaseViewModel
                 await _supabase.SaveScanEventAsync(scanEvent);
 
                 // 4. Si une maintenance est en cours, reprendre le timer
-                if (FoundMachine.Status == Constants.StatusInMaintenance)
+                if (FoundMachine.EquipmentStatus == Constants.StatusInMaintenance)
                 {
                     await ResumeTimerFromDbAsync();
                 }
+
+                // 5. 🔧 Proposition automatique de maintenance
+                // Si l'agent de maintenance scanne une machine en Defect,
+                // proposer directement de commencer la maintenance
+                if (IsMaintenanceAgent && FoundMachine.EquipmentStatus == Constants.StatusDefect)
+                {
+                    bool startMaint = await Shell.Current.DisplayAlert(
+                        "🔧 Defective machine detected",
+                        $"{FoundMachine.StandardEquipmentName}\n\nThis machine is in Defect status.\nDo you want to start maintenance?",
+                        "Yes, start", "No");
+
+                    if (startMaint)
+                    {
+                        // Naviguer vers la page Maintenance
+                        await Shell.Current.GoToAsync("//maintenance");
+                        return;
+                    }
+                }
             }
 
-            // 5. Mettre à jour la visibilité des boutons
+            // 6. Mettre à jour la visibilité des boutons
             UpdateButtonVisibility();
         }
         finally { IsBusy = false; }
@@ -167,7 +185,7 @@ public partial class ScanViewModel : BaseViewModel
     {
         if (string.IsNullOrWhiteSpace(NewMachineName))
         {
-            await Shell.Current.DisplayAlert("Champ requis", "Veuillez saisir le nom de la machine.", "OK");
+            await Shell.Current.DisplayAlert("Required field", "Please enter the machine name.", "OK");
             return;
         }
         if (IsBusy) return;
@@ -176,17 +194,17 @@ public partial class ScanViewModel : BaseViewModel
         {
             var newMachine = new Machine
             {
-                TagId = ScannedEpc,
-                Name = NewMachineName.Trim(),
-                Department = SelectedDepartment ?? "LTN1",
-                Status = Constants.StatusPaused,
-                InstallationDate = DateTime.Now
+                TagReference = ScannedEpc,
+                StandardEquipmentName = NewMachineName.Trim(),
+                Plant = SelectedPlant ?? "LTN1",
+                EquipmentStatus = Constants.StatusPassive,
+                YearOfConstruction = DateTime.Now.Year
             };
 
             await _supabase.SaveMachineAsync(newMachine);
 
             // Recharger la machine depuis Supabase (pour récupérer l'ID auto-généré)
-            FoundMachine = await _supabase.GetMachineByTagIdAsync(ScannedEpc);
+            FoundMachine = await _supabase.GetMachineByTagReferenceAsync(ScannedEpc);
             TagNotFound = false;
             ShowRegisterForm = false;
             OnPropertyChanged(nameof(HasMachine));
@@ -200,19 +218,19 @@ public partial class ScanViewModel : BaseViewModel
                     MachineId = FoundMachine.Id,
                     UserId = _supabase.CurrentProfile?.Id,
                     EventType = "Registered",
-                    Notes = $"Nouvelle machine enregistrée : {NewMachineName}",
+                    Notes = $"New machine registered: {NewMachineName}",
                     Timestamp = DateTime.UtcNow
                 };
                 await _supabase.SaveScanEventAsync(scanEvent);
             }
 
-            ScanStatusText = $"✅ Machine '{NewMachineName}' enregistrée !";
-            await Shell.Current.DisplayAlert("Succès", $"Machine '{NewMachineName}' enregistrée avec le statut ⏸️ En Pause.", "OK");
+            ScanStatusText = $"✅ Machine '{NewMachineName}' registered!";
+            await Shell.Current.DisplayAlert("Success", $"Machine '{NewMachineName}' registered with ⏸️ Passive status.", "OK");
             UpdateButtonVisibility();
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Erreur", $"Impossible d'enregistrer : {ex.Message}", "OK");
+            await Shell.Current.DisplayAlert("Error", $"Failed to register: {ex.Message}", "OK");
         }
         finally { IsBusy = false; }
     }
@@ -230,26 +248,26 @@ public partial class ScanViewModel : BaseViewModel
         try
         {
             bool confirm = await Shell.Current.DisplayAlert(
-                "Signaler Panne",
-                $"Confirmer : Signaler la machine {FoundMachine.Name} en panne ?",
-                "Oui", "Non");
+                "Report Defect",
+                $"Confirm: Report machine {FoundMachine.Name} as defective?",
+                "Yes", "No");
             if (!confirm) return;
 
-            FoundMachine.Status = Constants.StatusBroken;
+            FoundMachine.EquipmentStatus = Constants.StatusBroken;
             await _supabase.SaveMachineAsync(FoundMachine);
 
             var scanEvent = new ScanEvent
             {
-                TagId = FoundMachine.TagId,
+                TagId = FoundMachine.TagReference,
                 MachineId = FoundMachine.Id,
                 UserId = _supabase.CurrentProfile?.Id,
                 EventType = Constants.StatusBroken,
-                Notes = "Machine signalée en panne par technicien",
+                Notes = "Machine reported as defective by technician",
                 Timestamp = DateTime.UtcNow
             };
             await _supabase.SaveScanEventAsync(scanEvent);
 
-            SetSuccess("🔴 Machine signalée en panne");
+            SetSuccess("🔴 Machine reported as defective");
             OnPropertyChanged(nameof(FoundMachine));
             UpdateButtonVisibility();
         }
@@ -265,13 +283,13 @@ public partial class ScanViewModel : BaseViewModel
         try
         {
             bool confirm = await Shell.Current.DisplayAlert(
-                "Commencer Maintenance",
-                $"Confirmer : Commencer la maintenance de {FoundMachine.Name} ?",
-                "Oui", "Non");
+                "Start Maintenance",
+                $"Confirm: Start maintenance for {FoundMachine.Name}?",
+                "Yes", "No");
             if (!confirm) return;
 
             // 1. Changer le statut de la machine
-            FoundMachine.Status = Constants.StatusInMaintenance;
+            FoundMachine.EquipmentStatus = Constants.StatusInMaintenance;
             await _supabase.SaveMachineAsync(FoundMachine);
 
             // 2. Créer la session de maintenance (démarre le chrono en DB)
@@ -281,11 +299,11 @@ public partial class ScanViewModel : BaseViewModel
             // 3. Enregistrer la traçabilité
             var scanEvent = new ScanEvent
             {
-                TagId = FoundMachine.TagId,
+                TagId = FoundMachine.TagReference,
                 MachineId = FoundMachine.Id,
                 UserId = _supabase.CurrentProfile?.Id,
                 EventType = Constants.StatusInMaintenance,
-                Notes = "Maintenance démarrée",
+                Notes = "Maintenance started",
                 Timestamp = DateTime.UtcNow
             };
             await _supabase.SaveScanEventAsync(scanEvent);
@@ -293,7 +311,7 @@ public partial class ScanViewModel : BaseViewModel
             // 4. Démarrer le timer visuel
             StartTimer();
 
-            SetSuccess("🔧 Maintenance en cours — Timer démarré");
+            SetSuccess("🔧 Maintenance in progress — Timer started");
             OnPropertyChanged(nameof(FoundMachine));
             UpdateButtonVisibility();
         }
@@ -309,9 +327,9 @@ public partial class ScanViewModel : BaseViewModel
         try
         {
             bool confirm = await Shell.Current.DisplayAlert(
-                "Maintenance Terminée",
-                $"Confirmer : Terminer la maintenance de {FoundMachine.Name} ?",
-                "Oui", "Non");
+                "End Maintenance",
+                $"Confirm: End maintenance for {FoundMachine.Name}?",
+                "Yes", "No");
             if (!confirm) return;
 
             // 1. Arrêter le timer
@@ -321,22 +339,22 @@ public partial class ScanViewModel : BaseViewModel
             await _supabase.EndMaintenanceAsync(_currentSession);
 
             // 3. Remettre la machine en marche
-            FoundMachine.Status = Constants.StatusRunning;
+            FoundMachine.EquipmentStatus = Constants.StatusRunning;
             await _supabase.SaveMachineAsync(FoundMachine);
 
             // 4. Traçabilité
             var scanEvent = new ScanEvent
             {
-                TagId = FoundMachine.TagId,
+                TagId = FoundMachine.TagReference,
                 MachineId = FoundMachine.Id,
                 UserId = _supabase.CurrentProfile?.Id,
                 EventType = Constants.StatusRunning,
-                Notes = $"Maintenance terminée — Durée : {_currentSession.DurationDisplay}",
+                Notes = $"Maintenance ended — Duration: {_currentSession.DurationDisplay}",
                 Timestamp = DateTime.UtcNow
             };
             await _supabase.SaveScanEventAsync(scanEvent);
 
-            SetSuccess($"✅ Maintenance terminée — Durée : {_currentSession.DurationDisplay}");
+            SetSuccess($"✅ Maintenance ended — Duration: {_currentSession.DurationDisplay}");
             _currentSession = null;
             OnPropertyChanged(nameof(FoundMachine));
             UpdateButtonVisibility();
@@ -355,23 +373,23 @@ public partial class ScanViewModel : BaseViewModel
         {
             string label = status switch
             {
-                "Running"       => "Remettre en marche",
-                "Removed"       => "Retirer",
+                "Running"       => "Restart",
+                "Removed"       => "Remove",
                 _               => status
             };
 
             bool confirm = await Shell.Current.DisplayAlert(
-                "Confirmer", $"Confirmer : {label} la machine {FoundMachine.Name} ?", "Oui", "Non");
+                "Confirm", $"Confirm: {label} machine {FoundMachine.Name}?", "Yes", "No");
             if (!confirm) return;
 
-            FoundMachine.Status = status;
-            if (status == "Removed") FoundMachine.ExitDate = DateTime.Now;
+            FoundMachine.EquipmentStatus = status;
+            if (status == "Scrapped") { /* No exit_date needed anymore */ }
 
             await _supabase.SaveMachineAsync(FoundMachine);
 
             var scanEvent = new ScanEvent
             {
-                TagId = FoundMachine.TagId,
+                TagId = FoundMachine.TagReference,
                 MachineId = FoundMachine.Id,
                 UserId = _supabase.CurrentProfile?.Id,
                 EventType = status,
@@ -380,7 +398,7 @@ public partial class ScanViewModel : BaseViewModel
             };
             await _supabase.SaveScanEventAsync(scanEvent);
 
-            SetSuccess($"Statut mis à jour : {status}");
+            SetSuccess($"Status updated: {status}");
             OnPropertyChanged(nameof(FoundMachine));
             UpdateButtonVisibility();
         }
@@ -424,7 +442,9 @@ public partial class ScanViewModel : BaseViewModel
     private void UpdateTimerDisplay()
     {
         if (_currentSession is null) return;
-        var elapsed = DateTime.UtcNow - _currentSession.StartedAt;
+        // ⚠️ StartedAt revient de Supabase en heure locale → convertir en UTC
+        var startUtc = _currentSession.StartedAt.ToUniversalTime();
+        var elapsed = DateTime.UtcNow - startUtc;
         // 🎓 MainThread.BeginInvokeOnMainThread est nécessaire car le Timer
         // tourne sur un thread secondaire, et le XAML ne peut être mis à jour
         // que depuis le thread principal (UI Thread).
@@ -451,7 +471,7 @@ public partial class ScanViewModel : BaseViewModel
 
     private void UpdateButtonVisibility()
     {
-        var status = FoundMachine?.Status;
+        var status = FoundMachine?.EquipmentStatus;
 
         // Technicien : peut signaler une panne seulement si la machine est en marche
         CanReportBroken = IsTechnician && status == Constants.StatusRunning;

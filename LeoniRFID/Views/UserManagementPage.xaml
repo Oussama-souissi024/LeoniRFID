@@ -5,19 +5,19 @@
              xmlns:models="clr-namespace:LeoniRFID.Models"
              x:Class="LeoniRFID.Views.UserManagementPage"
              x:DataType="vm:UserManagementViewModel"
-             Title="Gestion des utilisateurs">
+             Title="User Management">
 
     <ScrollView>
         <VerticalStackLayout Padding="24,20" Spacing="20">
 
             <!-- Titre + Bouton Ajouter -->
             <Grid ColumnDefinitions="*, Auto">
-                <Label Text="Utilisateurs" 
+                <Label Text="Users" 
                        Style="{StaticResource HeadingLabel}" 
                        FontSize="24" 
                        VerticalOptions="Center" />
                 <Button Grid.Column="1" 
-                        Text="+ Ajouter"
+                        Text="+ Add"
                         Command="{Binding ToggleFormCommand}"
                         Style="{StaticResource PrimaryButton}"
                         HeightRequest="44"
@@ -36,26 +36,26 @@
                    IsVisible="{Binding SuccessMessage, Converter={StaticResource NotNullToVisible}}" />
 
             <!-- ═══ Formulaire de Création ═══ -->
-            <Frame Style="{StaticResource Card}" 
-                   IsVisible="{Binding IsFormVisible}" 
-                   BackgroundColor="{StaticResource LeoniDarkBlue}">
+            <Border Style="{StaticResource BorderCard}" 
+                    IsVisible="{Binding IsFormVisible}" 
+                    BackgroundColor="{StaticResource LeoniDarkBlue}">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="Nouveau Compte" 
+                    <Label Text="New Account" 
                            TextColor="White" 
                            FontFamily="RobotoBold" 
                            FontSize="18" />
 
-                    <Entry Placeholder="Nom complet (ex: Ahmed Ben Ali)"
+                    <Entry Placeholder="Full name (ex: John Doe)"
                            Text="{Binding NewUserName}"
                            Style="{StaticResource ModernEntry}" />
 
-                    <Entry Placeholder="Email (ex: ahmed@leoni.com)"
+                    <Entry Placeholder="Email (ex: john@leoni.com)"
                            Keyboard="Email"
                            Text="{Binding NewUserEmail}"
                            Style="{StaticResource ModernEntry}" />
 
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="Rôle :" TextColor="White" FontSize="14" />
+                        <Label Text="Role:" TextColor="White" FontSize="14" />
                         <Picker ItemsSource="{Binding AvailableRolesDisplay}"
                                 SelectedIndex="{Binding SelectedRoleIndex}"
                                 BackgroundColor="{StaticResource InputBackground}"
@@ -64,16 +64,16 @@
                                 HeightRequest="50" />
                     </VerticalStackLayout>
 
-                    <Button Text="CRÉER LE COMPTE"
+                    <Button Text="CREATE ACCOUNT"
                             Command="{Binding CreateUserCommand}"
                             Style="{StaticResource PrimaryButton}" />
 
-                    <Label Text="⚠️ Le technicien définira son propre mot de passe lors de sa première connexion."
+                    <Label Text="⚠️ Technicians will set their own password upon first login."
                            TextColor="#E2E8F0"
                            FontSize="12"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- 🎓 Pédagogie PFE : Le Composant CollectionView
                  C'est le composant le plus performant pour afficher des listes. Il recycle 
@@ -84,7 +84,7 @@
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="40" Spacing="10">
                         <Label Text="👥" FontSize="48" HorizontalTextAlignment="Center" />
-                        <Label Text="Aucun utilisateur trouvé." 
+                        <Label Text="No user found." 
                                Style="{StaticResource SubHeadingLabel}" 
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
@@ -92,20 +92,20 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Profile">
-                        <Frame Style="{StaticResource CardAlt}" Margin="0,6">
+                        <Border Style="{StaticResource BorderCardAlt}" Margin="0,6">
                             <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
 
                                 <!-- Avatar -->
-                                <Frame WidthRequest="48" HeightRequest="48"
-                                       CornerRadius="24" Padding="0"
-                                       BackgroundColor="{StaticResource LeoniOrange}"
-                                       HasShadow="False" BorderColor="Transparent">
+                                <Border WidthRequest="48" HeightRequest="48"
+                                        StrokeShape="RoundRectangle 24" StrokeThickness="0"
+                                        Padding="0"
+                                        Background="{StaticResource PrimaryGradient}">
                                     <Label Text="{Binding Initials}"
                                            TextColor="White"
                                            FontFamily="RobotoBold" FontSize="16"
                                            HorizontalTextAlignment="Center"
                                            VerticalTextAlignment="Center" />
-                                </Frame>
+                                </Border>
 
                                 <!-- Infos -->
                                 <VerticalStackLayout Grid.Column="1" 
@@ -125,25 +125,32 @@
                                      Pour cliquer sur un bouton qui déclenche une fonction du ViewModel, 
                                      on doit remonter l'arbre (AncestorType) pour trouver la commande centrale ! -->
                                 <VerticalStackLayout Grid.Column="2" 
-                                                     VerticalOptions="Center" Spacing="8">
-                                    <Button Text="🔄 Rôle"
+                                                     VerticalOptions="Center" Spacing="6">
+                                    <Button Text="🔄 Role"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UserManagementViewModel}}, Path=ChangeRoleCommand}"
                                             CommandParameter="{Binding .}"
                                             FontSize="11" HeightRequest="32"
                                             Padding="10,0" CornerRadius="16"
                                             BackgroundColor="{StaticResource LeoniMidBlue}"
                                             TextColor="White" />
-                                    <Button Text="⏸ Statut"
+                                    <Button Text="⏸ Status"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UserManagementViewModel}}, Path=ToggleUserStatusCommand}"
                                             CommandParameter="{Binding .}"
                                             FontSize="11" HeightRequest="32"
                                             Padding="10,0" CornerRadius="16"
                                             BackgroundColor="{StaticResource TextMuted}"
                                             TextColor="White" />
+                                    <Button Text="🗑️ Delete"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UserManagementViewModel}}, Path=DeleteUserCommand}"
+                                            CommandParameter="{Binding .}"
+                                            FontSize="11" HeightRequest="32"
+                                            Padding="10,0" CornerRadius="16"
+                                            BackgroundColor="#E74C3C"
+                                            TextColor="White" />
                                 </VerticalStackLayout>
 
                             </Grid>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

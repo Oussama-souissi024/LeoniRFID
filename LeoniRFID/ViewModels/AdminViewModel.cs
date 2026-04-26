@@ -56,7 +56,7 @@ public partial class AdminViewModel : BaseViewModel
         {
             var result = await FilePicker.Default.PickAsync(new PickOptions
             {
-                PickerTitle = "Sélectionner le fichier Excel LEONI",
+                PickerTitle = "Select LEONI Excel file",
                 FileTypes   = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
                     { DevicePlatform.Android, new[] { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" } }
@@ -66,7 +66,7 @@ public partial class AdminViewModel : BaseViewModel
             if (result == null) return;
 
             IsBusy = true;
-            ImportStatus = "Lecture du fichier...";
+            ImportStatus = "Reading file...";
 
             using var stream = await result.OpenReadAsync();
             var imported = _excel.ImportMachines(stream);
@@ -75,16 +75,16 @@ public partial class AdminViewModel : BaseViewModel
             {
                 await _supabase.BulkInsertMachinesAsync(imported);
                 await LoadAsync();
-                await Shell.Current.DisplayAlert("Succès", $"{imported.Count} machines importées avec succès.", "OK");
+                await Shell.Current.DisplayAlert("Success", $"{imported.Count} machines successfully imported.", "OK");
             }
             else
             {
-                await Shell.Current.DisplayAlert("Erreur", "Aucune donnée valide trouvée dans le fichier.", "OK");
+                await Shell.Current.DisplayAlert("Error", "No valid data found in the file.", "OK");
             }
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Erreur", $"Erreur d'import : {ex.Message}", "OK");
+            await Shell.Current.DisplayAlert("Error", $"Import error: {ex.Message}", "OK");
         }
         finally
         {
@@ -114,12 +114,12 @@ public partial class AdminViewModel : BaseViewModel
                 await stream.CopyToAsync(fileStream);
             }
 
-            await Shell.Current.DisplayAlert("Template Généré", $"Fichier disponible : {targetPath}", "OK");
+            await Shell.Current.DisplayAlert("Template Generated", $"File available: {targetPath}", "OK");
             
             // Share the file
             await Share.Default.RequestAsync(new ShareFileRequest
             {
-                Title = "Template Excel LEONI",
+                Title = "LEONI Excel Template",
                 File  = new ShareFile(targetPath)
             });
         }
@@ -129,7 +129,7 @@ public partial class AdminViewModel : BaseViewModel
     [RelayCommand]
     private async Task DeleteMachineAsync(Machine machine)
     {
-        bool confirm = await Shell.Current.DisplayAlert("Confirmer", $"Supprimer {machine.Name} ?", "Oui", "Non");
+        bool confirm = await Shell.Current.DisplayAlert("Confirm", $"Delete {machine.Name}?", "Yes", "No");
         if (!confirm) return;
 
         await _supabase.DeleteMachineAsync(machine);

@@ -27,6 +27,7 @@ public partial class AppShell : Shell
             // de naviguer "à l'intérieur" d'une grappe (comme aller au détail d'une machine 
             // depuis la page scanner) de façon dynamique.
             Routing.RegisterRoute("machinedetail", typeof(MachineDetailPage));
+            Routing.RegisterRoute("maintenancesession", typeof(MaintenanceSessionPage));
         }
         catch (Exception ex)
         {
@@ -41,7 +42,7 @@ public partial class AppShell : Shell
                 {
                     Content = new Label
                     {
-                        Text = $"ERREUR APP SHELL AU DÉMARRAGE:\n\n{ex}",
+                        Text = $"APP SHELL STARTUP ERROR:\n\n{ex}",
                         TextColor = Colors.Red,
                         FontSize = 14,
                         Padding = new Thickness(20),
@@ -53,14 +54,14 @@ public partial class AppShell : Shell
             Items.Clear();
             Items.Add(new FlyoutItem
             {
-                Title = "Erreur",
+                Title = "Error",
                 Icon = "warning.png",
                 FlyoutDisplayOptions = FlyoutDisplayOptions.AsMultipleItems,
                 Items =
                 {
                     new ShellSection
                     {
-                        Title = "Erreur",
+                        Title = "Error",
                         Items =
                         {
                             new ShellContent
@@ -113,6 +114,13 @@ public partial class AppShell : Shell
         {
             UserMgmtFlyoutItem.FlyoutItemIsVisible = isAdmin;
             UserMgmtFlyoutItem.IsVisible = isAdmin;
+        }
+
+        // 🏭 Menu Départements : visible uniquement pour le rôle Admin
+        if (DepartmentFlyoutItem != null)
+        {
+            DepartmentFlyoutItem.FlyoutItemIsVisible = isAdmin;
+            DepartmentFlyoutItem.IsVisible = isAdmin;
         }
     }
 

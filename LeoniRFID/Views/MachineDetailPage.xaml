@@ -5,84 +5,136 @@
              xmlns:models="clr-namespace:LeoniRFID.Models"
              x:Class="LeoniRFID.Views.MachineDetailPage"
              x:DataType="vm:MachineDetailViewModel"
-             Title="Détails Machine">
+             x:Name="detailPage"
+             Title="Machine Details">
 
-    <!-- 🎓 Pédagogie PFE : ScrollView
-         ScrollView permet de faire défiler le contenu verticalement (scroll) 
-         si l'écran du téléphone est trop petit pour tout afficher. -->
-    <Grid RowDefinitions="*, Auto">
+    <Grid RowDefinitions="*">
         
         <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="20" Spacing="20">
                 
-                <!-- Header Card -->
-                <Frame Style="{StaticResource Card}" Padding="20" CornerRadius="15">
-                    <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="15">
+                <!-- ═══ Header Card ═══ -->
+                <Border Style="{StaticResource BorderCard}" Padding="20">
+                    <Grid RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="12">
                         
                         <Grid ColumnDefinitions="*, Auto">
                             <VerticalStackLayout>
-                                <Label Text="{Binding Machine.Name}" Style="{StaticResource HeadingLabel}" />
-                                <Label Text="{Binding Machine.TagId, StringFormat='EPC : {0}'}" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Machine.StandardEquipmentName}" Style="{StaticResource HeadingLabel}" />
+                                <Label Text="{Binding Machine.TagReference, StringFormat='🏷️ EPC: {0}'}" Style="{StaticResource CaptionLabel}" />
                             </VerticalStackLayout>
-                            <Border Grid.Column="1" StrokeShape="RoundRectangle 8" Padding="12,6"
-                                    BackgroundColor="{Binding Machine.Status, Converter={StaticResource StatusToBadge}}"
+                            <Border Grid.Column="1" StrokeShape="RoundRectangle 8" Padding="12,6" StrokeThickness="0"
+                                    BackgroundColor="{Binding Machine.EquipmentStatus, Converter={StaticResource StatusToBadge}}"
                                     VerticalOptions="Start">
-                                <Label Text="{Binding Machine.Status}" TextColor="{Binding Machine.Status, Converter={StaticResource StatusToColor}}" 
+                                <Label Text="{Binding Machine.StatusDisplay}" TextColor="{Binding Machine.EquipmentStatus, Converter={StaticResource StatusToColor}}" 
                                        FontFamily="RobotoBold" FontSize="12" />
                             </Border>
                         </Grid>
 
                         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
-                        <Grid Grid.Row="2" ColumnDefinitions="*, *">
+                        <!-- Infos détaillées -->
+                        <Grid Grid.Row="2" ColumnDefinitions="*, *" RowDefinitions="Auto, Auto" RowSpacing="10" ColumnSpacing="10">
                             <VerticalStackLayout>
-                                <Label Text="Département" Style="{StaticResource CaptionLabel}" />
-                                <Label Text="{Binding Machine.Department}" Style="{StaticResource BodyLabel}" />
+                                <Label Text="Plant" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Machine.Plant}" Style="{StaticResource BodyLabel}" FontFamily="RobotoBold" />
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="1">
-                                <Label Text="Dernière Maj" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="Area" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Machine.Area}" Style="{StaticResource BodyLabel}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1">
+                                <Label Text="Serial No" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Machine.SerialNumber}" Style="{StaticResource BodyLabel}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1">
+                                <Label Text="Last Update" Style="{StaticResource CaptionLabel}" />
                                 <Label Text="{Binding Machine.LastUpdatedDisplay}" Style="{StaticResource BodyLabel}" />
                             </VerticalStackLayout>
                         </Grid>
+
+                        <!-- Notes -->
+                        <VerticalStackLayout Grid.Row="3" IsVisible="{Binding Machine.Notes, Converter={StaticResource NotNullToVisible}}">
+                            <Label Text="Notes" Style="{StaticResource CaptionLabel}" />
+                            <Label Text="{Binding Machine.Notes}" Style="{StaticResource BodyLabel}" 
+                                   TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
                         
                     </Grid>
-                </Frame>
+                </Border>
 
-                <!-- Admin Actions -->
-                <Frame IsVisible="{Binding IsAdmin}" Style="{StaticResource CardAlt}" Padding="15" CornerRadius="15">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Actions Administrateur" Style="{StaticResource SubHeadingLabel}" />
-                        
-                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
-                            <Button Text="Éditer" 
-                                    Command="{Binding EditMachineCommand}" 
-                                    Style="{StaticResource SecondaryButton}" />
+                <!-- ═══ CHANGEMENT DE STATUT (Admin + Technician) ═══ -->
+                <Border Style="{StaticResource BorderCard}" Padding="20"
+                        IsVisible="{Binding CanChangeStatus}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="⚡ Change status" Style="{StaticResource HeadingLabel}" FontSize="18" />
+                        <Label Text="Tap the desired new status:" 
+                               FontSize="12" TextColor="{StaticResource TextSecondary}" />
+
+                        <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                            <!-- En marche (Active) -->
+                            <Button Text="✅ Active"
+                                    Command="{Binding ChangeStatusCommand}"
+                                    CommandParameter="Active"
+                                    BackgroundColor="#27AE60"
+                                    TextColor="White"
+                                    FontFamily="RobotoBold" FontSize="12"
+                                    HeightRequest="50" CornerRadius="12" />
+
+                            <!-- En pause (Passive) -->
                             <Button Grid.Column="1" 
-                                    Text="Scanner" 
-                                    Command="{Binding RecordMaintenanceCommand}" 
-                                    Style="{StaticResource PrimaryButton}" />
-                        </Grid>
-                        <Button Text="Supprimer Machine" 
-                                Command="{Binding DeleteMachineCommand}" 
-                                Style="{StaticResource DangerButton}" Margin="0,10,0,0"/>
-                    </VerticalStackLayout>
-                </Frame>
+                                    Text="⏸️ Passive"
+                                    Command="{Binding ChangeStatusCommand}"
+                                    CommandParameter="Passive"
+                                    BackgroundColor="#3498DB"
+                                    TextColor="White"
+                                    FontFamily="RobotoBold" FontSize="12"
+                                    HeightRequest="50" CornerRadius="12" />
 
-                <!-- History -->
-                <Label Text="Historique des scans" Style="{StaticResource HeadingLabel}" FontSize="16" />
+                            <!-- En panne (Defect) -->
+                            <Button Grid.Column="2" 
+                                    Text="🔴 Defect"
+                                    Command="{Binding ChangeStatusCommand}"
+                                    CommandParameter="Defect"
+                                    BackgroundColor="#E74C3C"
+                                    TextColor="White"
+                                    FontFamily="RobotoBold" FontSize="12"
+                                    HeightRequest="50" CornerRadius="12" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ═══ Admin Actions ═══ -->
+                <Border IsVisible="{Binding IsAdmin}" Style="{StaticResource BorderCardAlt}" Padding="15">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="👑 Administrator Actions" Style="{StaticResource SubHeadingLabel}" />
+                        <Button Text="✏️ Edit information" 
+                                Command="{Binding StartEditCommand}" 
+                                Style="{StaticResource SecondaryButton}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ═══ Historique des scans ═══ -->
+                <Label Text="📋 Scan History" Style="{StaticResource HeadingLabel}" FontSize="16" />
                 <CollectionView ItemsSource="{Binding Events}" MinimumHeightRequest="200">
+                    <CollectionView.EmptyView>
+                        <Label Text="No registered events." 
+                               TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" Margin="20" />
+                    </CollectionView.EmptyView>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:ScanEvent">
-                            <Frame Style="{StaticResource CardAlt}" Padding="10" Margin="0,2" CornerRadius="10">
+                            <Border Style="{StaticResource BorderCardAlt}" Padding="10" Margin="0,2">
                                 <Grid ColumnDefinitions="Auto, *, Auto">
                                     <Label Text="{Binding EventIcon}" FontSize="20" VerticalOptions="Center" />
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0" VerticalOptions="Center">
                                         <Label Text="{Binding EventType}" FontFamily="RobotoBold" FontSize="13" />
-                                        <Label Text="{Binding Notes}" TextColor="{StaticResource TextSecondary}" FontSize="11" IsVisible="{Binding Notes, Converter={StaticResource NotNullToVisible}}" />
+                                        <Label Text="{Binding Notes}" TextColor="{StaticResource TextSecondary}" FontSize="11" 
+                                               IsVisible="{Binding Notes, Converter={StaticResource NotNullToVisible}}" 
+                                               MaxLines="2" LineBreakMode="TailTruncation" />
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="2" Text="{Binding TimestampDisplay}" FontSize="10" TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Text="{Binding TimestampDisplay}" FontSize="10" 
+                                           TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
                                 </Grid>
-                            </Frame>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
@@ -91,7 +143,7 @@
         </ScrollView>
 
         <!-- Loading Overlay -->
-        <Grid Grid.RowSpan="2" BackgroundColor="#AA000000" IsVisible="{Binding IsBusy}">
+        <Grid BackgroundColor="#AA000000" IsVisible="{Binding IsBusy}">
             <ActivityIndicator IsRunning="{Binding IsBusy}" VerticalOptions="Center" />
         </Grid>
 

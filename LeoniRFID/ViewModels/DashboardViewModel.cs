@@ -8,8 +8,7 @@ namespace LeoniRFID.ViewModels;
 
 // 🎓 Pédagogie PFE : Le Tableau de Bord (Dashboard)
 // Ce ViewModel est le "cerveau" de la page d'accueil après connexion.
-// Il charge les statistiques en temps réel depuis Supabase (nombre de machines,
-// répartition par département, événements récents) et les expose à l'interface.
+// Il charge les statistiques en temps réel depuis Supabase et gère la navigation.
 public partial class DashboardViewModel : BaseViewModel
 {
     private readonly SupabaseService _supabase;
@@ -17,99 +16,110 @@ public partial class DashboardViewModel : BaseViewModel
     public DashboardViewModel(SupabaseService supabase)
     {
         _supabase = supabase;
-        Title = "Tableau de Bord";
+        Title = "Dashboard";
     }
 
-    // ── Informations utilisateur connecté ──────────────────────────────────
+    // ── Informations utilisateur connecté ──────────────────────────────
     [ObservableProperty] private string _userName     = string.Empty;
     [ObservableProperty] private string _userRole     = string.Empty;
     [ObservableProperty] private string _userInitials = string.Empty;
     [ObservableProperty] private bool   _isAdmin      = false;
+    [ObservableProperty] private bool   _isMaintenance = false;
 
-    // ── Statistiques globales ──────────────────────────────────────────────
+    // ── Statistiques globales ─────────────────────────────────────────
     [ObservableProperty] private int _totalMachines;
-    [ObservableProperty] private int _runningCount;
-    [ObservableProperty] private int _brokenCount;
+    [ObservableProperty] private int _activeCount;
+    [ObservableProperty] private int _defectCount;
     [ObservableProperty] private int _inMaintenanceCount;
-    [ObservableProperty] private int _pausedCount;
-    [ObservableProperty] private int _removedCount;
+    [ObservableProperty] private int _passiveCount;
+    [ObservableProperty] private int _scrappedCount;
+    [ObservableProperty] private int _transferCount;
 
-    // ── Statistiques par département (LTN1, LTN2, LTN3) ──────────────────
-    [ObservableProperty] private int _ltn1Count;
-    [ObservableProperty] private int _ltn2Count;
-    [ObservableProperty] private int _ltn3Count;
+    // ── Événements récents ────────────────────────────────────────────
+    public ObservableCollection<ScanEvent> RecentEvents { get; } = [];
 
-    // ── Événements récents ────────────────────────────────────────────────
-    public ObservableCollection<ScanEvent> RecentEvents { get; } = new ObservableCollection<ScanEvent>();
-
-    // ── Statut de synchronisation ─────────────────────────────────────────
-    [ObservableProperty] private string _syncStatus = "Cloud connecté";
+    // ── Statut de synchronisation ─────────────────────────────────────
+    [ObservableProperty] private string _syncStatus = "Cloud connected";
     [ObservableProperty] private string _lastSyncTime = "—";
 
+    // ══════════════════════════════════════════════════════════════════════
+    //  CHARGEMENT DES DONNÉES
+    // ══════════════════════════════════════════════════════════════════════
+
     [RelayCommand]
-    public async Task LoadAsync()
+    public async Task LoadDashboard()
     {
         if (IsBusy) return;
         IsBusy = true;
         try
         {
-            // User
+            // Utilisateur
             IsAdmin = _supabase.IsAdmin;
-            UserName = _supabase.CurrentProfile?.FullName ?? "Utilisateur";
-            UserRole = _supabase.CurrentProfile?.RoleDisplay ?? "Inconnu";
+            IsMaintenance = _supabase.IsMaintenance || _supabase.IsAdmin;
+            UserName = _supabase.CurrentProfile?.FullName ?? "User";
+            UserRole = _supabase.CurrentProfile?.RoleDisplay ?? "Unknown";
             UserInitials = _supabase.CurrentProfile?.Initials ?? "?";
 
-            // Stats avec les nouveaux statuts
+            // Statistiques machines
             var machines = await _supabase.GetAllMachinesAsync();
             TotalMachines      = machines.Count;
-            RunningCount       = machines.Count(m => m.Status == "Running");
-            BrokenCount        = machines.Count(m => m.Status == "Broken");
-            InMaintenanceCount = machines.Count(m => m.Status == "InMaintenance");
-            PausedCount        = machines.Count(m => m.Status == "Paused");
-            RemovedCount       = machines.Count(m => m.Status == "Removed");
-            Ltn1Count          = machines.Count(m => m.Department == "LTN1");
-            Ltn2Count          = machines.Count(m => m.Department == "LTN2");
-            Ltn3Count          = machines.Count(m => m.Department == "LTN3");
+            ActiveCount        = machines.Count(m => m.EquipmentStatus == "Active");
+            DefectCount        = machines.Count(m => m.EquipmentStatus == "Defect");
+            InMaintenanceCount = machines.Count(m => m.EquipmentStatus == "InMaintenance");
+            PassiveCount       = machines.Count(m => m.EquipmentStatus == "Passive");
+            ScrappedCount      = machines.Count(m => m.EquipmentStatus == "Scrapped");
+            TransferCount      = machines.Count(m => m.EquipmentStatus.StartsWith("Transfer"));
 
-            // Recent events
+            // Événements récents
             var events = await _supabase.GetRecentEventsAsync(10);
             RecentEvents.Clear();
             foreach (var e in events) RecentEvents.Add(e);
 
-            SyncStatus = "✅ Données à jour";
+            SyncStatus = "✅ Data up to date";
             LastSyncTime = DateTime.Now.ToString("HH:mm:ss");
         }
         catch (Exception ex)
         {
-            SyncStatus = $"❌ Erreur : {ex.Message}";
+            SyncStatus = $"❌ Error: {ex.Message}";
         }
         finally { IsBusy = false; }
     }
 
-    [RelayCommand]
-    private async Task SyncNowAsync()
-    {
-        // En mode BaaS, un "Sync" revient simplement à recharger les données du cloud
-        await LoadAsync();
-    }
+    // ══════════════════════════════════════════════════════════════════════
+    //  NAVIGATION (noms sans Async pour CommunityToolkit)
+    // ══════════════════════════════════════════════════════════════════════
 
     [RelayCommand]
-    private async Task GoToScanAsync() =>
+    private async Task GoToScan() =>
         await Shell.Current.GoToAsync("//scan");
 
     [RelayCommand]
-    private async Task GoToAdminAsync() =>
+    private async Task GoToMachines() =>
+        await Shell.Current.GoToAsync("//machinelist");
+
+    [RelayCommand]
+    private async Task GoToAdmin() =>
         await Shell.Current.GoToAsync("//admin");
 
     [RelayCommand]
-    private async Task GoToReportAsync() =>
+    private async Task GoToReport() =>
         await Shell.Current.GoToAsync("//report");
 
     [RelayCommand]
-    private async Task LogoutAsync()
+    private async Task GoToMaintenance() =>
+        await Shell.Current.GoToAsync("//maintenance");
+
+    [RelayCommand]
+    private async Task SyncNow()
+    {
+        await LoadDashboard();
+    }
+
+    [RelayCommand]
+    private async Task Logout()
     {
         bool confirm = await Shell.Current.DisplayAlert(
-            "Déconnexion", "Voulez-vous vous déconnecter ?", "Oui", "Non");
+            "Logout", "Do you want to logout?", "Yes", "No");
         if (!confirm) return;
         await _supabase.LogoutAsync();
         await Shell.Current.GoToAsync("//login");

@@ -16,32 +16,32 @@
 
     <!-- ── Login (No Flyout) ─────────────────────────────────────────── -->
     <ShellContent
-        Title="Connexion"
+        Title="Login"
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="login"
         FlyoutItemIsVisible="False"
         Shell.FlyoutBehavior="Disabled" />
 
     <!-- ── Main App ──────────────────────────────────────────────────── -->
-    <FlyoutItem Title="Tableau de bord" Icon="dashboard_icon.png">
+    <FlyoutItem Title="Dashboard" Icon="dashboard_icon.png">
         <ShellContent 
             ContentTemplate="{DataTemplate views:DashboardPage}" 
             Route="dashboard" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Scanner RFID" Icon="scan_icon.png">
+    <FlyoutItem Title="RFID Scanner" Icon="scan_icon.png">
         <ShellContent 
             ContentTemplate="{DataTemplate views:ScanPage}" 
             Route="scan" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Liste des Machines" Icon="admin_icon.png">
+    <FlyoutItem Title="Machine List" Icon="admin_icon.png">
         <ShellContent 
             ContentTemplate="{DataTemplate views:MachineListPage}" 
             Route="machinelist" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Rapports" Icon="report_icon.png">
+    <FlyoutItem Title="Reports" Icon="report_icon.png">
         <ShellContent 
             ContentTemplate="{DataTemplate views:ReportPage}" 
             Route="report" />
@@ -61,12 +61,18 @@
             Route="admin" />
     </FlyoutItem>
 
-    <FlyoutItem x:Name="UserMgmtFlyoutItem" Title="Gestion utilisateurs" Icon="admin_icon.png">
+    <FlyoutItem x:Name="UserMgmtFlyoutItem" Title="User Management" Icon="admin_icon.png">
         <ShellContent 
             ContentTemplate="{DataTemplate views:UserManagementPage}" 
             Route="usermanagement" />
     </FlyoutItem>
 
-    <MenuItem Text="Déconnexion" Clicked="OnLogoutClicked" />
+    <FlyoutItem x:Name="DepartmentFlyoutItem" Title="🏭 Departments" Icon="admin_icon.png">
+        <ShellContent 
+            ContentTemplate="{DataTemplate views:DepartmentPage}" 
+            Route="departments" />
+    </FlyoutItem>
+
+    <MenuItem Text="Logout" Clicked="OnLogoutClicked" />
 
 </Shell>
