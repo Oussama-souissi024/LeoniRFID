@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
+             xmlns:models="clr-namespace:LeoniRFID.Models"
+             x:Class="LeoniRFID.Views.DepartmentPage"
+             x:DataType="vm:DepartmentViewModel"
+             Title="🏭 Departments">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,20" Spacing="20">
+
+            <!-- Titre + Bouton Ajouter -->
+            <Grid ColumnDefinitions="*, Auto">
+                <Label Text="Departments" 
+                       Style="{StaticResource HeadingLabel}" 
+                       FontSize="24" 
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1" 
+                        Text="+ Add"
+                        Command="{Binding ToggleFormCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        HeightRequest="44"
+                        Padding="20,0" 
+                        FontSize="14" />
+            </Grid>
+
+            <!-- Messages -->
+            <Label Text="{Binding ErrorMessage}" 
+                   TextColor="{StaticResource StatusRemoved}" 
+                   FontAttributes="Bold"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource NotNullToVisible}}" />
+            <Label Text="{Binding SuccessMessage}" 
+                   TextColor="{StaticResource StatusInstalled}" 
+                   FontAttributes="Bold"
+                   IsVisible="{Binding SuccessMessage, Converter={StaticResource NotNullToVisible}}" />
+
+            <!-- ═══ Formulaire Création / Édition ═══ -->
+            <Border Style="{StaticResource BorderCard}" 
+                    IsVisible="{Binding IsFormVisible}" 
+                    BackgroundColor="{StaticResource LeoniDarkBlue}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="{Binding FormTitle}" 
+                           TextColor="White" 
+                           FontFamily="RobotoBold" 
+                           FontSize="18" />
+
+                    <Label Text="Code (ex: MH, LTN1)" TextColor="#B0C4DE" FontSize="13" />
+                    <Border Style="{StaticResource BorderCardAlt}" Padding="0" HeightRequest="50">
+                        <Entry Placeholder="Department code"
+                               Text="{Binding DeptCode}"
+                               Style="{StaticResource ModernEntry}"
+                               Margin="15,0" />
+                    </Border>
+
+                    <Label Text="Full name" TextColor="#B0C4DE" FontSize="13" />
+                    <Border Style="{StaticResource BorderCardAlt}" Padding="0" HeightRequest="50">
+                        <Entry Placeholder="Ex: Main Production Plant"
+                               Text="{Binding DeptName}"
+                               Style="{StaticResource ModernEntry}"
+                               Margin="15,0" />
+                    </Border>
+
+                    <Label Text="Description (optional)" TextColor="#B0C4DE" FontSize="13" />
+                    <Border Style="{StaticResource BorderCardAlt}" Padding="0" HeightRequest="50">
+                        <Entry Placeholder="Ex: Main production site"
+                               Text="{Binding DeptDescription}"
+                               Style="{StaticResource ModernEntry}"
+                               Margin="15,0" />
+                    </Border>
+
+                    <Button Text="💾 SAVE"
+                            Command="{Binding SaveCommand}"
+                            Style="{StaticResource PrimaryButton}" />
+
+                    <Button Text="Cancel" 
+                            Command="{Binding ToggleFormCommand}"
+                            Style="{StaticResource SecondaryButton}" 
+                            HeightRequest="40" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ═══ Liste des Départements ═══ -->
+            <CollectionView ItemsSource="{Binding Departments}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="40" Spacing="10">
+                        <Label Text="🏭" FontSize="48" HorizontalTextAlignment="Center" />
+                        <Label Text="No registered departments." 
+                               Style="{StaticResource SubHeadingLabel}" 
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Department">
+                        <Border Style="{StaticResource InteractiveBorderCard}" Margin="0,5" Padding="15">
+                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
+
+                                <!-- Badge Code -->
+                                <Border WidthRequest="56" HeightRequest="56"
+                                        StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                                        Background="{StaticResource BlueGradient}"
+                                        Padding="0">
+                                    <Label Text="{Binding Code}"
+                                           TextColor="White"
+                                           FontFamily="RobotoBold" FontSize="14"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
+                                </Border>
+
+                                <!-- Infos -->
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                    <Label Text="{Binding Name}" 
+                                           FontFamily="RobotoBold" FontSize="16"
+                                           TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="{Binding Description}" 
+                                           FontSize="12"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           MaxLines="2" LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+
+                                <!-- Actions -->
+                                <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="8">
+                                    <Button Text="✏️"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DepartmentViewModel}}, Path=EditDepartmentCommand}"
+                                            CommandParameter="{Binding .}"
+                                            FontSize="14" HeightRequest="36" WidthRequest="44"
+                                            Padding="0" CornerRadius="10"
+                                            BackgroundColor="{StaticResource LeoniMidBlue}"
+                                            TextColor="White" />
+                                    <Button Text="🗑️"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DepartmentViewModel}}, Path=DeleteDepartmentCommand}"
+                                            CommandParameter="{Binding .}"
+                                            FontSize="14" HeightRequest="36" WidthRequest="44"
+                                            Padding="0" CornerRadius="10"
+                                            BackgroundColor="#E74C3C"
+                                            TextColor="White" />
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

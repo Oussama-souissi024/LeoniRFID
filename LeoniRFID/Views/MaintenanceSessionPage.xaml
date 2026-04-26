@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- 🎓 Pédagogie PFE : Page Session de Maintenance
+     Cette page s'ouvre quand on clique sur une machine en panne ou en cours de maintenance.
+     Elle affiche : fiche machine complète, chronomètre, boutons d'action (Commencer/Terminer).
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LeoniRFID.ViewModels"
+             x:Class="LeoniRFID.Views.MaintenanceSessionPage"
+             x:DataType="vm:MaintenanceSessionViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="*, Auto">
+
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="16">
+
+                <!-- ═══ EN-TÊTE : Statut machine ═══ -->
+                <Border Style="{StaticResource BorderCard}" Padding="16">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding StatusLabel}" 
+                               FontFamily="RobotoBold" FontSize="16"
+                               TextColor="{Binding StatusColor}"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ═══ FICHE MACHINE COMPLÈTE ═══ -->
+                <Border Style="{StaticResource BorderCard}" Padding="20">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding Machine.StandardEquipmentName}" 
+                               Style="{StaticResource HeadingLabel}" FontSize="22" />
+                        <BoxView Style="{StaticResource Divider}" />
+
+                        <Grid ColumnDefinitions="Auto, *" 
+                              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto"
+                              ColumnSpacing="15" RowSpacing="10">
+
+                            <!-- Tag EPC -->
+                            <Label Text="🏷️ Tag EPC" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Column="1" Text="{Binding Machine.TagReference}" 
+                                   FontFamily="RobotoBold" FontSize="13" />
+
+                            <!-- Plant -->
+                            <Label Grid.Row="1" Text="🏭 Plant" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Machine.Plant}" 
+                                   FontFamily="RobotoBold" FontSize="13" />
+
+                            <!-- Zone / Area -->
+                            <Label Grid.Row="2" Text="📍 Zone" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Machine.Area}" 
+                                   FontFamily="RobotoBold" FontSize="13" />
+
+                            <!-- N° Série -->
+                            <Label Grid.Row="3" Text="🔢 N° Série" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Machine.SerialNumber}" 
+                                   FontFamily="RobotoBold" FontSize="13" />
+
+                            <!-- N° Immobilisation -->
+                            <Label Grid.Row="4" Text="📋 Immobilisation" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding Machine.ImmobilisationNumber}" 
+                                   FontFamily="RobotoBold" FontSize="13" />
+
+                            <!-- Statut -->
+                            <Label Grid.Row="5" Text="📊 Statut" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Row="5" Grid.Column="1" Text="{Binding Machine.StatusDisplay}" 
+                                   FontFamily="RobotoBold" FontSize="13" 
+                                   TextColor="{Binding StatusColor}" />
+
+                            <!-- Année -->
+                            <Label Grid.Row="6" Text="📅 Année" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Row="6" Grid.Column="1" Text="{Binding Machine.YearDisplay}" 
+                                   FontFamily="RobotoBold" FontSize="13" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ═══ CHRONOMÈTRE DE MAINTENANCE ═══ -->
+                <Border Style="{StaticResource BorderCard}" Padding="20" 
+                        IsVisible="{Binding IsMaintenanceActive}"
+                        Stroke="#F39C12" StrokeThickness="2">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="⏱️ MAINTENANCE EN COURS" 
+                               TextColor="#F39C12" FontFamily="RobotoBold" FontSize="14" 
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding MaintenanceTimer}" 
+                               TextColor="{StaticResource TextPrimary}" 
+                               FontFamily="RobotoBold" FontSize="52" 
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Durée écoulée depuis le début de l'intervention" 
+                               TextColor="{StaticResource TextMuted}" FontSize="11" 
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ═══ BOUTON : Commencer la maintenance (si Defect/Broken) ═══ -->
+                <Button Text="🔧  COMMENCER LA MAINTENANCE"
+                        Command="{Binding StartMaintenanceCommand}"
+                        BackgroundColor="#F39C12" TextColor="White"
+                        HeightRequest="60" CornerRadius="14" 
+                        FontAttributes="Bold" FontSize="17"
+                        IsVisible="{Binding CanStartMaintenance}" />
+
+                <!-- ═══ BOUTON : Terminer la maintenance (si InMaintenance) ═══ -->
+                <Button Text="✅  TERMINER LA MAINTENANCE"
+                        Command="{Binding EndMaintenanceCommand}"
+                        BackgroundColor="#27AE60" TextColor="White"
+                        HeightRequest="60" CornerRadius="14" 
+                        FontAttributes="Bold" FontSize="17"
+                        IsVisible="{Binding IsMaintenanceActive}" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ═══ BARRE INFÉRIEURE : Bouton Retour ═══ -->
+        <Grid Grid.Row="1" Padding="16,10" BackgroundColor="{StaticResource CardBackground}">
+            <Button Text="← Retour à la liste"
+                    Command="{Binding GoBackCommand}"
+                    Style="{StaticResource SecondaryButton}"
+                    HeightRequest="44" />
+        </Grid>
+
+        <!-- Loading overlay -->
+        <Grid Grid.RowSpan="2" BackgroundColor="#AA000000" IsVisible="{Binding IsBusy}">
+            <ActivityIndicator IsRunning="True" VerticalOptions="Center" Color="White" />
+        </Grid>
+
+    </Grid>
+</ContentPage>
