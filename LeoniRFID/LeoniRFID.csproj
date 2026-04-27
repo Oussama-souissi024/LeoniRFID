@@ -23,8 +23,16 @@
 		<AndroidLinkMode>None</AndroidLinkMode>
 	</PropertyGroup>
 
+	<!-- Configuration spécifique Release pour éviter les crashs APK -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<PublishTrimmed>false</PublishTrimmed>
+		<RunAOTCompilation>false</RunAOTCompilation>
+		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+		<EnableLLVM>false</EnableLLVM>
+	</PropertyGroup>
+
 	<ItemGroup>
-		<MauiIcon Include="Resources\AppIcon\appicon.jpg" Color="#FFFFFF" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FFFFFF" />
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#00205B" BaseSize="128,128" />
 		<MauiImage Include="Resources\Images\*" />
 		<MauiFont Include="Resources\Fonts\*" />
